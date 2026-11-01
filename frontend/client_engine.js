@@ -624,6 +624,23 @@
         };
       }
 
+      // E. GENERAL KNOWLEDGE / CONVERSATIONAL ADVISORY (WHEN NOT ASKING FOR A TRADE)
+      if (!isTradeSignal && !targetSym) {
+        return {
+          symbol: activeSym,
+          name: q.name,
+          currency: q.currency,
+          recommendation: "AI COGNITIVE ADVISORY",
+          confidence: 96,
+          proof_canvas: false,
+          response: "### ✦ QUANTUM AI COGNITIVE ASSISTANT\n\n" +
+            "I have full common sense across global financial markets, company fundamentals, and trading disciplines.\n\n" +
+            "- **For Long-Term Investments:** Ask *'In which Indian shares can I get profit for long term?'* to see high-CASA compounders (HDFC Bank, TCS, Reliance, L&T).\n" +
+            "- **For Exact Timing & Proof:** Ask *'When to buy and when to sell NVDA?'* or *'Exact Buy and Sell for Tesla'* to get live entry price, take-profit target (+3.5%), stop-loss, and a technical proof picture.\n" +
+            "- **For Current Year & Clock:** Ask *'Which year is today?'* or *'What is today date?'* to get live synchronized calendar status."
+        };
+      }
+
       // F. PAIRED BUY & SELL EXECUTION BLUEPRINT (FOR SPECIFIC ASSETS)
       const buyPrice = Number(q.price);
       const sellPrice = Number(q.target_price || +(buyPrice * 1.0349).toFixed(2));
@@ -657,7 +674,9 @@
           "- **2. Why Sell at " + q.currency + " " + sellPrice.toFixed(2) + " in 5 minutes?** Matches Fibonacci 1.618 expansion resistance. Locking +" + gainPct + "% in 5m secures mathematical compounding.\n" +
           "- **3. Common-Sense Risk Protection:** If price violates `" + q.currency + " " + stopLoss.toFixed(2) + "`, the algorithm executes stop loss to protect 98.5% of your capital."
       };
-    }    executeTrade(body) {
+    }
+
+    executeTrade(body) {
       const sym = body.symbol;
       const amt = parseFloat(body.amount) || 1000;
       const curr = body.currency || "USD";

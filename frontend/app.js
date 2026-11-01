@@ -1647,16 +1647,24 @@ function formatMarkdownToHtml(md) {
 
   let text = processedLines.join('\n');
 
-  // Headers
-  text = text.replace(/### (.*)/g, '<div style="font-size:13px; font-weight:800; color:#fff; margin:10px 0 4px 0; letter-spacing:0.3px;">$1</div>');
-  text = text.replace(/#### (.*)/g, '<div style="font-size:11px; font-weight:700; color:var(--text-muted); margin:8px 0 3px 0; text-transform:uppercase;">$1</div>');
+  // Headings
+  text = text.replace(/^# (.*)/gm, '<div style="font-size:16px; font-weight:800; color:#fff; margin:14px 0 6px 0; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px;">$1</div>');
+  text = text.replace(/^## (.*)/gm, '<div style="font-size:14px; font-weight:700; color:#38bdf8; margin:12px 0 5px 0;">$1</div>');
+  text = text.replace(/^### (.*)/gm, '<div style="font-size:13px; font-weight:700; color:#fff; margin:10px 0 4px 0;">$1</div>');
+  text = text.replace(/^#### (.*)/gm, '<div style="font-size:11px; font-weight:700; color:var(--text-muted); margin:8px 0 3px 0; text-transform:uppercase;">$1</div>');
+
+  // Dividers
+  text = text.replace(/^---/gm, '<hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:12px 0;">');
 
   // Bold & code
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#fff;">$1</strong>');
   text = text.replace(/`([^`]+)`/g, '<code class="ai-badge">$1</code>');
 
+  // Numbered lists
+  text = text.replace(/^(\d+)\.\s+(.*)/gm, '<div style="margin:4px 0 4px 8px; display:flex; align-items:flex-start; gap:6px;"><span style="color:#38bdf8; font-weight:700;">$1.</span><span>$2</span></div>');
+
   // Bullet items
-  text = text.replace(/^- (.*)/gm, '<div style="margin:3px 0 3px 10px; display:flex; align-items:flex-start; gap:6px;"><span>•</span><span>$1</span></div>');
+  text = text.replace(/^[-*]\s+(.*)/gm, '<div style="margin:3px 0 3px 10px; display:flex; align-items:flex-start; gap:6px;"><span style="color:#00e676;">•</span><span>$1</span></div>');
 
   // Line breaks
   text = text.replace(/\n\n/g, '<br>');
@@ -1787,6 +1795,7 @@ function drawDualProofPicture(canvasId, alert) {
 
   const w = canvas.width;
   const h = canvas.height;
+  const currSym = (alert && (alert.currency === 'INR' || (alert.symbol && alert.symbol.includes('.NS')))) ? '₹' : ((alert && alert.currency === 'EUR') ? '€' : ((alert && alert.currency === 'GBP') ? '£' : '$'));
 
   // Background
   const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
@@ -1911,7 +1920,7 @@ function drawDualProofPicture(canvasId, alert) {
   ctx.closePath();
   ctx.fill();
 
-  const buyPriceText = alert ? `BUY: $${Number(alert.price || alert.buy_price || 145.29).toFixed(2)}` : 'BUY NOW';
+  const buyPriceText = alert ? `BUY: ${currSym}${Number(alert.price || alert.buy_price || 145.29).toFixed(2)}` : 'BUY NOW';
   ctx.fillStyle = '#000';
   ctx.fillRect(buyX - 32, buyY + 4, 64, 13);
   ctx.strokeStyle = '#00e676';
@@ -1932,7 +1941,7 @@ function drawDualProofPicture(canvasId, alert) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  const sellPriceText = alert ? `SELL TARGET: $${Number(alert.target_price || alert.sell_target || 150.36).toFixed(2)}` : 'SELL TARGET: $150.36';
+  const sellPriceText = alert ? `SELL TARGET: ${currSym}${Number(alert.target_price || alert.sell_target || 150.36).toFixed(2)}` : 'SELL TARGET';
   ctx.fillStyle = 'rgba(255, 23, 68, 0.9)';
   ctx.fillRect(w - 145, targetY - 11, 138, 14);
   ctx.fillStyle = '#ffffff';
@@ -1951,7 +1960,7 @@ function drawDualProofPicture(canvasId, alert) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  const slText = alert ? `SL: $${Number(alert.stop_loss || 143.10).toFixed(2)}` : 'SL: $143.10';
+  const slText = alert ? `SL: ${currSym}${Number(alert.stop_loss || 143.10).toFixed(2)}` : 'SL';
   ctx.fillStyle = '#ff9100';
   ctx.font = 'bold 8px monospace';
   ctx.textAlign = 'left';
@@ -2459,17 +2468,57 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     const hasTradeBlueprint = data.proof_canvas === true && data.buy_price !== undefined;
 
     if (hasTradeBlueprint) {
+      currentDualSignal = {
+        symbol: sym,
+        price: buyP,
+        target_price: sellP,
+        stop_loss: stopP,
+        currency: curr,
+        gain_pct: gainPct
+      };
       if (sym && sym !== state.selectedSymbol && state.quotes[sym]) {
         window.selectAsset(sym);
       } else {
-        updateDualExecutionRadar(data);
+        updateDualExecutionRadar(currentDualSignal);
       }
       if (signalAudioEnabled) playChime('BUY');
     }
 
-    // Clean, minimalist 1-click execution pill (No cluttered badges or bulky boxes)
+    // Clean, high-res visual Proof Picture + 1-click execution pill
+    let proofPictureHtml = '';
+    const proofCanvasId = 'proofCanvas_' + aiQueryCounter;
     let tradeExecutionPillHtml = '';
+
     if (hasTradeBlueprint) {
+      proofPictureHtml = `
+      <div class="chat-proof-card">
+        <div class="proof-card-header">
+          <div class="proof-card-title">
+            <span class="proof-dot"></span>
+            <span>${sym} TECHNICAL PROOF PICTURE • WHEN TO BUY & WHEN TO SELL</span>
+          </div>
+          <span class="proof-badge">AI Verified Setup</span>
+        </div>
+        <div class="proof-canvas-container">
+          <canvas id="${proofCanvasId}" class="chat-proof-canvas" width="600" height="230"></canvas>
+        </div>
+        <div class="proof-card-footer">
+          <div class="proof-metric buy">
+            <span class="metric-lbl">🟢 WHEN TO BUY</span>
+            <span class="metric-val">${fmtCurrency(buyP, curr)} (NOW)</span>
+          </div>
+          <div class="proof-metric sell">
+            <span class="metric-lbl">🔴 WHEN TO SELL</span>
+            <span class="metric-val">${fmtCurrency(sellP, curr)} (+${gainPct}%)</span>
+          </div>
+          <div class="proof-metric stop">
+            <span class="metric-lbl">🛑 STOP LOSS</span>
+            <span class="metric-val">${fmtCurrency(stopP, curr)} (-${data.loss_pct || '1.51'}%)</span>
+          </div>
+        </div>
+      </div>
+      `;
+
       tradeExecutionPillHtml = `
       <div class="chat-trade-pill-wrap">
         <button type="button" class="btn-chat-execute-pill" onclick="executeDualRadarTrade()">
@@ -2494,6 +2543,8 @@ window.submitFrontAiQuery = async function(overridePrompt) {
           ${formatMarkdownToHtml(data.response)}
         </div>
 
+        ${proofPictureHtml}
+
         ${tradeExecutionPillHtml}
 
         <div class="assistant-actions">
@@ -2504,6 +2555,20 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     `;
 
     thread.appendChild(aiRow);
+
+    if (hasTradeBlueprint) {
+      setTimeout(() => {
+        drawDualProofPicture(proofCanvasId, {
+          symbol: sym,
+          name: data.name || sym,
+          price: buyP,
+          target_price: sellP,
+          stop_loss: stopP,
+          currency: curr,
+          gain_pct: gainPct
+        });
+      }, 60);
+    }
 
     state.chatHistory.push({ role: 'user', content: prompt });
     state.chatHistory.push({ role: 'assistant', content: data.response });

@@ -4329,6 +4329,134 @@ html, body {
 }
 
 /* ========================================================
+   PROOF PICTURE & CHATGPT CLEAN BAR ADDITIONS
+   ======================================================== */
+.chat-proof-card {
+  margin: 14px 0 10px 0;
+  background: #0d121f;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.proof-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.proof-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #fff;
+  font-weight: 700;
+}
+.proof-dot {
+  width: 8px;
+  height: 8px;
+  background: #00e676;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00e676;
+}
+.proof-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.proof-canvas-container {
+  padding: 12px;
+  background: #060913;
+  display: flex;
+  justify-content: center;
+}
+.chat-proof-canvas {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+.proof-card-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 10px;
+}
+.proof-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.proof-metric .metric-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+.proof-metric .metric-val {
+  font-size: 12.5px;
+  font-weight: 800;
+  font-family: monospace;
+}
+.proof-metric.buy .metric-val { color: #00e676; }
+.proof-metric.sell .metric-val { color: #38bdf8; }
+.proof-metric.stop .metric-val { color: #ef4444; }
+
+/* Top Bar Minimalist Header */
+.chat-header-model-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.model-sparkle {
+  color: #38bdf8;
+  font-size: 15px;
+}
+.model-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+.model-status {
+  font-size: 10px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.btn-new-chat-top {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.btn-new-chat-top:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+/* ========================================================
    MINIMALIST CHATGPT DESIGN SYSTEM (CLEAN & SUBTLE)
    ======================================================== */
 .chat-main {
@@ -4544,4 +4672,132 @@ html, body {
 
 .ai-markdown-table tr:last-child td {
   border-bottom: none;
+}
+
+/* ========================================================
+   PROOF PICTURE & CHATGPT CLEAN BAR ADDITIONS
+   ======================================================== */
+.chat-proof-card {
+  margin: 14px 0 10px 0;
+  background: #0d121f;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.proof-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.proof-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #fff;
+  font-weight: 700;
+}
+.proof-dot {
+  width: 8px;
+  height: 8px;
+  background: #00e676;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00e676;
+}
+.proof-badge {
+  font-size: 9px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.proof-canvas-container {
+  padding: 12px;
+  background: #060913;
+  display: flex;
+  justify-content: center;
+}
+.chat-proof-canvas {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+}
+.proof-card-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 10px;
+}
+.proof-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.proof-metric .metric-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+.proof-metric .metric-val {
+  font-size: 12.5px;
+  font-weight: 800;
+  font-family: monospace;
+}
+.proof-metric.buy .metric-val { color: #00e676; }
+.proof-metric.sell .metric-val { color: #38bdf8; }
+.proof-metric.stop .metric-val { color: #ef4444; }
+
+/* Top Bar Minimalist Header */
+.chat-header-model-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.model-sparkle {
+  color: #38bdf8;
+  font-size: 15px;
+}
+.model-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+.model-status {
+  font-size: 10px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.btn-new-chat-top {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.btn-new-chat-top:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
 }

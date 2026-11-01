@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Quantum AI Trade Analyzer • ChatGPT-Style Market Intelligence</title>
-  <link rel="stylesheet" href="style.css?v=7.0">
+  <link rel="stylesheet" href="style.css?v=8.0">
   <script src="lightweight-charts.js"></script>
   <script src="qrcode.min.js"></script>
 </head>
@@ -144,23 +144,24 @@
           <button type="button" class="btn-menu-hamburger" onclick="toggleSidebar()" title="Toggle Sidebar">
             ☰
           </button>
-          <div class="active-asset-indicator" id="topActiveAssetIndicator">
-            <span class="active-sym" id="topActiveSym">NVDA</span>
-            <span class="active-name" id="topActiveName">NVIDIA Corporation</span>
-            <span class="active-price" id="topActivePrice">$145.29</span>
-            <span class="active-change bull" id="topActiveChange">+2.40%</span>
+          <div class="chat-header-model-pill">
+            <span class="model-sparkle">✦</span>
+            <span class="model-name">Quantum Trade AI</span>
+            <span class="model-status">● Live Intelligence</span>
           </div>
         </div>
 
         <div class="bar-right">
+          <button type="button" class="btn-new-chat-top" onclick="startNewAnalysis()" title="Start New Analysis">
+            <span>+</span> New Analysis
+          </button>
           <!-- Live Notifications Bell -->
           <button type="button" id="btnToggleAlerts" class="btn-alerts-bell" onclick="toggleAlertsDrawer()" title="Signal Alerts">
             <span>🔔</span>
             <span id="alertBellBadge" class="alert-badge">0</span>
           </button>
-
-          <button type="button" class="btn-clear-chat" onclick="startNewAnalysis()" title="Start New Analysis">
-            🗑️ Clear Chat
+          <button type="button" class="btn-clear-chat" onclick="startNewAnalysis()" title="Clear Chat">
+            🗑️ Clear
           </button>
         </div>
       </header>
@@ -457,7 +458,7 @@
     <button type="button" id="btnSubmitInlineAi"></button>
   </div>
 
-  <script src="client_engine.js?v=7.0"></script>
-  <script src="app.js?v=7.0"></script>
+  <script src="client_engine.js?v=8.0"></script>
+  <script src="app.js?v=8.0"></script>
 </body>
 </html>
