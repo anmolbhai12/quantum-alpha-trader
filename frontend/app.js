@@ -2396,25 +2396,25 @@ window.submitFrontAiQuery = async function(overridePrompt) {
 
   const scrollContainer = document.getElementById('chatScrollContainer');
 
-  // 1. Append User Message Bubble
+  // 1. User Message Bubble (ChatGPT style)
   const userRow = document.createElement('div');
   userRow.className = 'chat-message-row user';
   userRow.innerHTML = `<div class="message-bubble user-bubble">${prompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
   thread.appendChild(userRow);
 
-  // Clear input
+  // Reset input
   if (input && !overridePrompt) {
     input.value = '';
     input.style.height = 'auto';
   }
 
-  // 2. Append Assistant Thinking Indicator Bubble
+  // 2. Assistant Thinking Bubble
   const thinkingId = 'thinking_' + Date.now();
   const thinkingRow = document.createElement('div');
   thinkingRow.className = 'chat-message-row assistant thinking';
   thinkingRow.id = thinkingId;
   thinkingRow.innerHTML = `
-    <div class="msg-avatar">🧠</div>
+    <div class="msg-avatar">✦</div>
     <div class="message-bubble assistant-bubble">
       <div class="typing-indicator">
         <span></span><span></span><span></span>
@@ -2424,9 +2424,7 @@ window.submitFrontAiQuery = async function(overridePrompt) {
   `;
   thread.appendChild(thinkingRow);
 
-  if (scrollContainer) {
-    scrollContainer.scrollTop = scrollContainer.scrollHeight;
-  }
+  if (scrollContainer) scrollContainer.scrollTop = scrollContainer.scrollHeight;
 
   const btn = document.getElementById('btnFrontAiSubmit');
   if (btn) {
@@ -2446,24 +2444,20 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     });
     const data = await res.json();
 
-    // Remove thinking bubble
+    // Remove thinking indicator
     const tEl = document.getElementById(thinkingId);
     if (tEl) tEl.remove();
 
     aiQueryCounter++;
-    const canvasId = `ai_proof_canvas_${aiQueryCounter}`;
-
     const sym = data.symbol || state.selectedSymbol || 'NVDA';
     const curr = data.currency || 'USD';
     const buyP = Number(data.buy_price || 145.29);
     const sellP = Number(data.sell_target || (buyP * 1.0349));
     const stopP = Number(data.stop_loss || (buyP * 0.9849));
     const gainPct = data.gain_pct || (((sellP - buyP) / buyP) * 100).toFixed(2);
-    const lossPct = data.loss_pct || (((buyP - stopP) / buyP) * 100).toFixed(2);
 
     const hasTradeBlueprint = data.proof_canvas === true && data.buy_price !== undefined;
 
-    // Only update active asset radar and play chime if this is an actual trade blueprint
     if (hasTradeBlueprint) {
       if (sym && sym !== state.selectedSymbol && state.quotes[sym]) {
         window.selectAsset(sym);
@@ -2473,61 +2467,34 @@ window.submitFrontAiQuery = async function(overridePrompt) {
       if (signalAudioEnabled) playChime('BUY');
     }
 
-    let tradeBlueprintHtml = '';
+    // Clean, minimalist 1-click execution pill (No cluttered badges or bulky boxes)
+    let tradeExecutionPillHtml = '';
     if (hasTradeBlueprint) {
-      tradeBlueprintHtml = `
-      <!-- Synchronized Dual Buy & Sell Execution Blueprint -->
-      <div class="ai-inline-dual-plan">
-        <div class="plan-col buy">
-          <span class="plan-col-tag">🟢 WHEN TO BUY</span>
-          <span class="plan-price-num">${fmtCurrency(buyP, curr)}</span>
-          <span class="plan-timing-note">⏱️ Immediate (NOW)</span>
-        </div>
-        <div class="plan-col sell">
-          <span class="plan-col-tag">🔴 WHEN TO SELL</span>
-          <span class="plan-price-num">${fmtCurrency(sellP, curr)} (+${gainPct}%)</span>
-          <span class="plan-timing-note">⏱️ Within 5 Minutes</span>
-        </div>
-        <div class="plan-col sl">
-          <span class="plan-col-tag">🛑 STOP LOSS RISK</span>
-          <span class="plan-price-num">${fmtCurrency(stopP, curr)} (-${lossPct}%)</span>
-          <span class="plan-timing-note">Strict Capital Cut</span>
-        </div>
+      tradeExecutionPillHtml = `
+      <div class="chat-trade-pill-wrap">
+        <button type="button" class="btn-chat-execute-pill" onclick="executeDualRadarTrade()">
+          ⚡ 1-Click Execute Setup: Buy ${fmtCurrency(buyP, curr)} ➔ Auto-Sell ${fmtCurrency(sellP, curr)} (+${gainPct}%)
+        </button>
       </div>
-
-      <!-- Proof Picture Canvas -->
-      <div class="ai-proof-canvas-wrap">
-        <div class="ai-proof-canvas-head">
-          <span>📸 VERIFIED TECHNICAL SETUP PROOF PICTURE (${sym})</span>
-          <span style="color:#00e676;">9 EMA / 21 EMA GOLDEN CROSS</span>
-        </div>
-        <canvas id="${canvasId}" width="520" height="150" class="ai-reply-proof-canvas"></canvas>
-      </div>
-
-      <!-- 1-Click Dual Execution Button -->
-      <button type="button" class="btn-execute-from-ai" onclick="executeDualRadarTrade()">
-        🚀 1-CLICK: BUY NOW (${fmtCurrency(buyP, curr)}) & AUTO-SELL AT TARGET (${fmtCurrency(sellP, curr)})
-      </button>
       `;
     }
 
-    // 3. Append Assistant Message Row
+    // 3. Assistant Message Row (Ultra-clean ChatGPT layout)
     const aiRow = document.createElement('div');
     aiRow.className = 'chat-message-row assistant';
     aiRow.innerHTML = `
-      <div class="msg-avatar">🧠</div>
+      <div class="msg-avatar">✦</div>
       <div class="message-bubble assistant-bubble">
         <div class="assistant-header">
-          <span class="assistant-name">Quantum AI Analyst</span>
-          <span class="model-badge">Gemini 3.5 Flash</span>
-          <span class="conviction-badge">CONVICTION: ${data.confidence || 96}%</span>
+          <span class="assistant-name">Quantum AI</span>
+          <span class="model-badge">Gemini 3.5</span>
         </div>
 
         <div class="assistant-body">
           ${formatMarkdownToHtml(data.response)}
         </div>
 
-        ${tradeBlueprintHtml}
+        ${tradeExecutionPillHtml}
 
         <div class="assistant-actions">
           <button type="button" class="msg-action-btn" onclick="copyAiBubbleText(this)">📋 Copy</button>
@@ -2538,20 +2505,13 @@ window.submitFrontAiQuery = async function(overridePrompt) {
 
     thread.appendChild(aiRow);
 
-    // Render proof picture canvas if trade setup exists
-    if (hasTradeBlueprint) {
-      setTimeout(() => {
-        drawDualProofPicture(canvasId, data);
-      }, 100);
-    }
-
     state.chatHistory.push({ role: 'user', content: prompt });
     state.chatHistory.push({ role: 'assistant', content: data.response });
 
     if (scrollContainer) {
       setTimeout(() => {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
-      }, 120);
+      }, 80);
     }
   } catch (err) {
     const tEl = document.getElementById(thinkingId);
@@ -2560,7 +2520,7 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     const errRow = document.createElement('div');
     errRow.className = 'chat-message-row assistant';
     errRow.innerHTML = `
-      <div class="msg-avatar">🧠</div>
+      <div class="msg-avatar">✦</div>
       <div class="message-bubble assistant-bubble">
         <span style="color:var(--bearish);">AI Engine connectivity issue. Retrying telemetry connection...</span>
       </div>
@@ -2573,75 +2533,6 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     }
   }
 };
-
-// CHATGPT-STYLE QUANTUM TRADE ANALYZER CONTROLLERS
-// ========================================================
-window.toggleSidebar = function() {
-  const s = document.getElementById('chatSidebar');
-  if (s) s.classList.toggle('open');
-};
-
-window.startNewAnalysis = function() {
-  const thread = document.getElementById('frontAiChatThread');
-  const welcome = document.getElementById('aiWelcomeCard');
-  const input = document.getElementById('frontAiInput');
-  if (thread) {
-    thread.innerHTML = '';
-    thread.style.display = 'none';
-  }
-  if (welcome) welcome.style.display = 'flex';
-  if (input) {
-    input.value = '';
-    input.focus();
-  }
-  const s = document.getElementById('chatSidebar');
-  if (s && window.innerWidth <= 768) s.classList.remove('open');
-};
-
-window.handleChatInputKeyDown = function(event) {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
-    window.submitFrontAiQuery();
-  }
-};
-
-// Auto-expand textarea
-document.addEventListener('input', function(e) {
-  if (e.target && e.target.id === 'frontAiInput') {
-    e.target.style.height = 'auto';
-    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-  }
-});
-
-// Sync top bar when asset changes
-const _baseSelectAsset = window.selectAsset;
-window.selectAsset = function(symbol) {
-  if (_baseSelectAsset) _baseSelectAsset(symbol);
-  setTimeout(() => {
-    const q = (typeof state !== 'undefined' && state.quotes) ? state.quotes[symbol] : null;
-    const symEl = document.getElementById('topActiveSym');
-    const nameEl = document.getElementById('topActiveName');
-    const priceEl = document.getElementById('topActivePrice');
-    const chgEl = document.getElementById('topActiveChange');
-    if (q) {
-      if (symEl) symEl.textContent = q.symbol;
-      if (nameEl) nameEl.textContent = q.name;
-      if (priceEl && typeof fmtCurrency === 'function') priceEl.textContent = fmtCurrency(q.price, q.currency);
-      if (chgEl) {
-        const isBull = (q.change_pct || 0) >= 0;
-        chgEl.className = 'active-change ' + (isBull ? 'bull' : 'bear');
-        chgEl.textContent = (isBull ? '+' : '') + (q.change_pct || 0).toFixed(2) + '%';
-      }
-    }
-    document.querySelectorAll('.sidebar-asset-btn').forEach(b => {
-      if (b.getAttribute('data-sym') === symbol) b.classList.add('active');
-      else b.classList.remove('active');
-    });
-    const s = document.getElementById('chatSidebar');
-    if (s && window.innerWidth <= 768) s.classList.remove('open');
-  }, 100);
-};
-
 
 window.copyAiBubbleText = function(btn) {
   const bubble = btn.closest('.assistant-bubble');
