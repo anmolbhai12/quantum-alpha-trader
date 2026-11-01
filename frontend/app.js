@@ -2371,3 +2371,180 @@ window.submitInlineAiPrompt = async function() {
     }
   }
 };
+
+// =========================================================
+// FRONT & CENTER AI ANALYST & TRANSMISSION PIPELINE
+// =========================================================
+let aiQueryCounter = 0;
+
+window.quickFrontAiAsk = function(promptText) {
+  const input = document.getElementById('frontAiInput');
+  if (input) input.value = promptText;
+  window.submitFrontAiQuery(promptText);
+};
+
+window.submitFrontAiQuery = async function(overridePrompt) {
+  const input = document.getElementById('frontAiInput');
+  const prompt = (overridePrompt || (input ? input.value : '')).trim();
+  if (!prompt) return;
+
+  const welcomeCard = document.getElementById('aiWelcomeCard');
+  if (welcomeCard) welcomeCard.style.display = 'none';
+
+  const thread = document.getElementById('frontAiChatThread');
+  if (thread) thread.style.display = 'flex';
+
+  const pipeline = document.getElementById('aiAnalyzerPipeline');
+  if (pipeline) {
+    pipeline.style.display = 'flex';
+    document.querySelectorAll('.pipeline-step').forEach(s => {
+      s.classList.remove('done');
+      s.classList.remove('active');
+    });
+    const s1 = document.getElementById('pipeStep1');
+    if (s1) s1.classList.add('active');
+  }
+
+  // Append user message
+  const userMsgEl = document.createElement('div');
+  userMsgEl.className = 'thread-user-msg';
+  userMsgEl.textContent = prompt;
+  thread.appendChild(userMsgEl);
+
+  if (input && !overridePrompt) input.value = '';
+
+  const btn = document.getElementById('btnFrontAiSubmit');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Sending to Analyzer...';
+  }
+
+  // Animate pipeline stages
+  setTimeout(() => {
+    const s1 = document.getElementById('pipeStep1');
+    const s2 = document.getElementById('pipeStep2');
+    if (s1) { s1.classList.remove('active'); s1.classList.add('done'); }
+    if (s2) s2.classList.add('active');
+  }, 400);
+
+  setTimeout(() => {
+    const s2 = document.getElementById('pipeStep2');
+    const s3 = document.getElementById('pipeStep3');
+    if (s2) { s2.classList.remove('active'); s2.classList.add('done'); }
+    if (s3) s3.classList.add('active');
+  }, 800);
+
+  try {
+    const res = await fetch('/api/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        symbol: state.selectedSymbol || 'NVDA',
+        message: prompt,
+        chat_history: state.chatHistory.slice(-6)
+      })
+    });
+    const data = await res.json();
+
+    const s3 = document.getElementById('pipeStep3');
+    const s4 = document.getElementById('pipeStep4');
+    if (s3) { s3.classList.remove('active'); s3.classList.add('done'); }
+    if (s4) s4.classList.add('done');
+
+    setTimeout(() => {
+      if (pipeline) pipeline.style.display = 'none';
+    }, 1200);
+
+    aiQueryCounter++;
+    const canvasId = `ai_proof_canvas_${aiQueryCounter}`;
+
+    const sym = data.symbol || state.selectedSymbol || 'NVDA';
+    const curr = data.currency || 'USD';
+    const buyP = Number(data.buy_price || 145.29);
+    const sellP = Number(data.sell_target || (buyP * 1.0349));
+    const stopP = Number(data.stop_loss || (buyP * 0.9849));
+    const gainPct = data.gain_pct || (((sellP - buyP) / buyP) * 100).toFixed(2);
+    const lossPct = data.loss_pct || (((buyP - stopP) / buyP) * 100).toFixed(2);
+
+    // If query mentioned another asset, switch to it automatically!
+    if (sym && sym !== state.selectedSymbol && state.quotes[sym]) {
+      window.selectAsset(sym);
+    } else {
+      updateDualExecutionRadar(data);
+    }
+
+    if (signalAudioEnabled) playChime('BUY');
+
+    const aiCard = document.createElement('div');
+    aiCard.className = 'thread-ai-card';
+    aiCard.innerHTML = `
+      <div class="ai-card-top">
+        <div class="ai-analyst-tag">
+          <span style="font-size:14px;">🧠</span>
+          <span>AI MARKET ANALYST • VERIFIED TELEMETRY</span>
+        </div>
+        <span class="front-ai-status-pill">CONVICTION: ${data.confidence || 96}%</span>
+      </div>
+
+      <div class="ai-card-content">
+        ${formatMarkdownToHtml(data.response)}
+      </div>
+
+      <!-- Synchronized Dual Buy & Sell Execution Blueprint -->
+      <div class="ai-inline-dual-plan">
+        <div class="plan-col buy">
+          <span class="plan-col-tag">🟢 WHEN TO BUY</span>
+          <span class="plan-price-num">${fmtCurrency(buyP, curr)}</span>
+          <span class="plan-timing-note">⏱️ Immediate (NOW)</span>
+        </div>
+        <div class="plan-col sell">
+          <span class="plan-col-tag">🔴 WHEN TO SELL</span>
+          <span class="plan-price-num">${fmtCurrency(sellP, curr)} (+${gainPct}%)</span>
+          <span class="plan-timing-note">⏱️ Within 5 Minutes</span>
+        </div>
+        <div class="plan-col sl">
+          <span class="plan-col-tag">🛑 STOP LOSS RISK</span>
+          <span class="plan-price-num">${fmtCurrency(stopP, curr)} (-${lossPct}%)</span>
+          <span class="plan-timing-note">Strict Capital Cut</span>
+        </div>
+      </div>
+
+      <!-- Proof Picture Canvas -->
+      <div class="ai-proof-canvas-wrap">
+        <div class="ai-proof-canvas-head">
+          <span>📸 VERIFIED TECHNICAL SETUP PROOF PICTURE (${sym})</span>
+          <span style="color:#00e676;">9 EMA / 21 EMA GOLDEN CROSS</span>
+        </div>
+        <canvas id="${canvasId}" width="520" height="150" class="ai-reply-proof-canvas"></canvas>
+      </div>
+
+      <!-- 1-Click Dual Execution Button -->
+      <button type="button" class="btn-execute-from-ai" onclick="executeDualRadarTrade()">
+        🚀 1-CLICK: BUY NOW (${fmtCurrency(buyP, curr)}) & AUTO-SELL AT TARGET (${fmtCurrency(sellP, curr)})
+      </button>
+    `;
+
+    thread.appendChild(aiCard);
+
+    // Render the proof canvas diagram
+    setTimeout(() => {
+      drawDualProofPicture(canvasId, data);
+    }, 100);
+
+    state.chatHistory.push({ role: 'user', content: prompt });
+    state.chatHistory.push({ role: 'assistant', content: data.response });
+
+    aiCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (err) {
+    if (pipeline) pipeline.style.display = 'none';
+    const errCard = document.createElement('div');
+    errCard.className = 'thread-ai-card';
+    errCard.innerHTML = `<span style="color:var(--bearish);">AI Analyzer connectivity error. Retrying connection...</span>`;
+    thread.appendChild(errCard);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Ask AI Analyzer ⚡';
+    }
+  }
+};

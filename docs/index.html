@@ -125,6 +125,107 @@
     <button class="market-tab" data-market="INDICES">WORLD INDICES</button>
   </nav>
 
+  <!-- ========================================================
+       FRONT & CENTER: QUANTUM AI TRADER & REAL-TIME ANALYZER
+       ======================================================== -->
+  <section id="frontAiAnalystHub" class="front-ai-hub">
+    <div class="front-ai-container">
+      
+      <!-- Top Title & Live Status -->
+      <div class="front-ai-header">
+        <div class="front-ai-brand">
+          <div class="ai-avatar-pulse">🧠</div>
+          <div>
+            <div class="ai-badge-row">
+              <span class="front-ai-status-pill"><span class="ai-live-dot"></span> LIVE QUANTUM AI ANALYST</span>
+              <span class="ai-intel-pill">COMMON-SENSE REASONING ENGINE</span>
+              <span class="ai-speed-pill">⚡ 15s - 5m EXECUTION</span>
+            </div>
+            <h1 class="front-ai-title">Conversational AI Analyst: Ask Anything & Get Live Buy / Sell Blueprint</h1>
+            <p class="front-ai-subtitle">
+              Ask in plain English. Your query is sent to the <strong>Quantitative Market Analyzer</strong> and returns with exact <strong>When to Buy</strong>, <strong>When to Sell</strong>, visual proof picture, and sensible financial logic.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prominent Question Bar -->
+      <div class="front-ai-input-wrapper">
+        <div class="input-glow-frame">
+          <input type="text" id="frontAiInput" class="front-ai-input" 
+            placeholder="Ask AI Analyst anything... (e.g. 'Should I buy NVDA right now?', 'Give me exact Buy & Sell for Tesla', 'Which shares are going up?')" 
+            onkeydown="if(event.key==='Enter')submitFrontAiQuery()" />
+          <button type="button" id="btnFrontAiSubmit" class="btn-front-ai-submit" onclick="submitFrontAiQuery()">
+            Ask AI Analyzer ⚡
+          </button>
+        </div>
+
+        <!-- Quick Common-Sense Action Chips -->
+        <div class="front-ai-chips">
+          <span class="chips-label">Quick Inquiries:</span>
+          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Should I buy NVDA right now?')">
+            🟢 Should I buy NVDA now?
+          </button>
+          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Give me exact Buy and Sell prices for Tesla (TSLA)')">
+            ⚡ Exact Buy & Sell for Tesla
+          </button>
+          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Which shares are going UP today?')">
+            📈 Which shares are going UP?
+          </button>
+          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('What is Bitcoin (BTC) outlook and when to sell?')">
+            ₿ Bitcoin: When to Sell?
+          </button>
+          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Analyze Reliance & Indian Equities')">
+            🇮🇳 Analyze Reliance (India)
+          </button>
+          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Common sense: How do I protect my money if price drops?')">
+            🧠 Common Sense: Protect Money
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Transmission Pipeline (Visible when query is sent to analyzer) -->
+      <div id="aiAnalyzerPipeline" class="ai-pipeline-bar" style="display:none;">
+        <div class="pipeline-step" id="pipeStep1">
+          <span class="step-icon">📡</span>
+          <span class="step-text">1. Query Dispatched to Analyzer</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step" id="pipeStep2">
+          <span class="step-icon">📊</span>
+          <span class="step-text">2. Scanning Level-2 Depth & Ticks</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step" id="pipeStep3">
+          <span class="step-icon">🛡️</span>
+          <span class="step-text">3. Applying Common-Sense Rules</span>
+        </div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-step" id="pipeStep4">
+          <span class="step-icon">✨</span>
+          <span class="step-text">4. Delivering Buy & Sell Proof</span>
+        </div>
+      </div>
+
+      <!-- Live AI Conversational Response Container -->
+      <div id="frontAiResponseBox" class="front-ai-response-box">
+        <div class="ai-welcome-card" id="aiWelcomeCard">
+          <div class="welcome-header">
+            <span class="welcome-icon">⚡</span>
+            <strong>Live AI Market Analyst is Standing By</strong>
+          </div>
+          <p class="welcome-body">
+            Ask any question above or click a prompt chip. The AI sends your query directly to the quantitative analyzer and delivers exact Buy/Sell execution levels, an annotated proof picture, and sensible common-sense logic.
+          </p>
+        </div>
+
+        <!-- Dynamic Conversation Thread -->
+        <div id="frontAiChatThread" class="front-ai-thread" style="display:none;"></div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- REAL-TIME DUAL BUY & SELL RADAR WITH VISUAL PROOF PICTURE -->
   <section id="dualExecutionRadar" class="dual-radar-section">
     <div class="dual-radar-container">
