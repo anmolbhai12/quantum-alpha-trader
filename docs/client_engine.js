@@ -289,15 +289,16 @@
       if (!apiKey) return null;
       try {
         const sys = "You are Quantum Alpha AI, a Wall-Street and Dalal-Street Quantitative Investment Strategist and Trading Mentor. You deliver sharp, deeply analytical, and mathematically precise responses in clean, readable Markdown.\n\n" +
-          "When analyzing any stock, crypto, or investment query:\n" +
-          "1. State an authoritative, high-conviction recommendation (BUY NOW, SELL NOW, or ACCUMULATE) with clear financial reasoning.\n" +
-          "2. For specific stock or trade queries, provide an EXACT Mathematical Trade Setup in a neat markdown table:\n" +
+          "CRITICAL DIRECTIVES:\n" +
+          "1. WORLD TIME & MARKET SESSIONS: When asked about the current time, market clocks, or trading hours (e.g. 'what is the current time in america', 'is the US market open?'), reference the exact real-time timezones provided in the telemetry context: US Eastern Time (ET - New York / Wall Street NYSE & NASDAQ), US Central (CT), US Pacific (PT), and Indian Standard Time (IST - Dalal Street). State the exact current time in America and explicitly state whether US regular trading sessions (09:30 AM – 04:00 PM ET, Mon-Fri) or Indian sessions (09:15 AM – 03:30 PM IST, Mon-Fri) are OPEN, PRE-MARKET, AFTER-HOURS, or CLOSED (Weekend/Overnight).\n" +
+          "2. When analyzing any stock, crypto, or investment query, state an authoritative, high-conviction recommendation (BUY NOW, SELL NOW, or ACCUMULATE) with clear financial reasoning.\n" +
+          "3. For specific stock or trade queries, provide an EXACT Mathematical Trade Setup in a neat markdown table:\n" +
           "   - Exact Buy Entry price\n" +
           "   - Exact Sell / Take-Profit Target (with exact +% and mathematical rationale: Fibonacci 1.618 extension, VWAP anchor, or liquidity sweep)\n" +
           "   - Exact Stop-Loss price (with exact -% to enforce a minimum 2.5:1 Risk/Reward ratio)\n" +
           "   - Mathematical Expectancy formula: (Win Rate * Avg Win) - (Loss Rate * Avg Loss)\n" +
-          "3. For long-term or wealth-building questions (such as Indian shares or US stocks), recommend top structural blue-chip compounders (e.g. HDFC Bank, TCS, Reliance Industries, L&T, Tata Motors), detailing their economic moat (CASA deposits, free cash flow conversion, ROE/ROCE > 18%), revenue growth, and SIP compounding mathematics.\n" +
-          "4. Format with clean, elegant markdown: use crisp headings, neat tables, and bullet points. Deliver high-density financial intellect without fluff.";
+          "4. For long-term or wealth-building questions (such as Indian shares or US stocks), recommend top structural blue-chip compounders (e.g. HDFC Bank, TCS, Reliance Industries, L&T, Tata Motors), detailing their economic moat (CASA deposits, free cash flow conversion, ROE/ROCE > 18%), revenue growth, and SIP compounding mathematics.\n" +
+          "5. Format with clean, elegant markdown: use crisp headings, neat tables, and bullet points. Deliver high-density financial intellect without fluff.";
 
         const payload = {
           system_instruction: { parts: [{ text: sys }] },
@@ -329,37 +330,55 @@
       const rawQ = (query || '').trim();
       const qL = rawQ.toLowerCase();
       const now = new Date();
-      const year = now.getFullYear(); // 2026
-      const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const year = now.getFullYear();
 
       // ==========================================
-      // 1. DATE, TIME, YEAR & CALENDAR INTELLIGENCE
+      // 1. PRECISE GLOBAL FINANCIAL CLOCKS & SESSIONS
       // ==========================================
-      if (qL.includes('year') || (qL.includes('date') && !qL.includes('mandate')) || qL.includes('day is today') || qL.includes('time is it') || qL.includes('current time') || qL === 'today') {
-        if (qL.includes('year')) {
-          return {
-            recommendation: "INFO",
-            confidence: 100,
-            proof_canvas: false,
-            response: "### 📅 CALENDAR INTELLIGENCE\n\n" +
-              "Today's year is **" + year + "**.\n\n" +
-              "- **Current Date:** " + dateStr + "\n" +
-              "- **Live Time:** " + timeStr + "\n\n" +
-              "I have full common sense across global dates, company data, and market pricing. Feel free to ask me anything about stocks, crypto, or exact Buy & Sell timing!"
-          };
+      const nyDate = now.toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const nyTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      const laTime = now.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      const chiTime = now.toLocaleTimeString('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      const istDate = now.toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const istTime = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      const lonTime = now.toLocaleTimeString('en-US', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+      const utcDate = now.toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const utcTime = now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+      // Determine US Market Session Status (NYSE / NASDAQ)
+      const nyDay = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
+      const nyHour = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' })).getHours();
+      const nyMin = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' })).getMinutes();
+      const nyTotalMin = nyHour * 60 + nyMin;
+
+      let usMarketStatus = "CLOSED (Weekend)";
+      if (nyDay >= 1 && nyDay <= 5) {
+        if (nyTotalMin >= 9 * 60 + 30 && nyTotalMin < 16 * 60) {
+          usMarketStatus = "OPEN (Regular Trading Session: 09:30 AM – 04:00 PM ET)";
+        } else if (nyTotalMin >= 4 * 60 && nyTotalMin < 9 * 60 + 30) {
+          usMarketStatus = "PRE-MARKET (04:00 AM – 09:30 AM ET)";
+        } else if (nyTotalMin >= 16 * 60 && nyTotalMin < 20 * 60) {
+          usMarketStatus = "AFTER-HOURS (04:00 PM – 08:00 PM ET)";
+        } else {
+          usMarketStatus = "CLOSED (Overnight Session)";
         }
+      }
 
-        return {
-          recommendation: "INFO",
-          confidence: 100,
-          proof_canvas: false,
-          response: "### ⏱️ REAL-TIME SYSTEM CLOCK\n\n" +
-            "- **Date:** " + dateStr + "\n" +
-            "- **Live Market Session Time:** " + timeStr + "\n" +
-            "- **Year:** " + year + "\n\n" +
-            "Global exchange feeds (NYSE, NASDAQ, NSE India, Crypto 24/7) are synchronized and streaming."
-        };
+      // Determine Indian Market Session Status (NSE / BSE)
+      const istDay = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getDay();
+      const istHour = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getHours();
+      const istMin = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getMinutes();
+      const istTotalMin = istHour * 60 + istMin;
+
+      let indiaMarketStatus = "CLOSED (Weekend)";
+      if (istDay >= 1 && istDay <= 5) {
+        if (istTotalMin >= 9 * 60 + 15 && istTotalMin < 15 * 60 + 30) {
+          indiaMarketStatus = "OPEN (Regular Trading Session: 09:15 AM – 03:30 PM IST)";
+        } else if (istTotalMin >= 9 * 60 && istTotalMin < 9 * 60 + 15) {
+          indiaMarketStatus = "PRE-OPEN SESSION (09:00 AM – 09:15 AM IST)";
+        } else {
+          indiaMarketStatus = "CLOSED (Post-Market)";
+        }
       }
 
       // ==========================================
@@ -416,9 +435,17 @@
         recommendation: "STRONG BUY", trend: "BULLISH" 
       };
 
-      let contextStr = "";
+      let contextStr = `[GLOBAL LIVE TELEMETRY & CLOCK FEEDS]\n` +
+        `- US Eastern Time (New York / Wall Street NYSE & NASDAQ): ${nyDate}, ${nyTime} ET (Trading Status: ${usMarketStatus})\n` +
+        `- US Central Time (Chicago): ${chiTime} CT\n` +
+        `- US Pacific Time (Los Angeles / Silicon Valley): ${laTime} PT\n` +
+        `- India Standard Time (IST - Dalal Street NSE & BSE): ${istDate}, ${istTime} IST (Trading Status: ${indiaMarketStatus})\n` +
+        `- London (LSE): ${lonTime} GMT/BST\n` +
+        `- UTC Global Reference: ${utcDate}, ${utcTime} UTC\n` +
+        `- 24/7 Asset: Crypto Live\n`;
+
       if (targetSym) {
-        contextStr = "Active Asset Telemetry: " + q.name + " (" + targetSym + ") | Live Price: " + q.currency + " " + q.price + " | 24h Change: " + q.change_pct + "% | Trend: " + (q.trend || 'BULLISH');
+        contextStr += `\n[ASSET TELEMETRY] Active Security: ${q.name} (${targetSym}) | Live Price: ${q.currency} ${q.price} | 24h Change: ${q.change_pct}% | Trend: ${q.trend || 'BULLISH'}\n`;
       }
 
       // ==========================================
@@ -467,7 +494,34 @@
       // ==========================================
       // 5. LOCAL EXPERT KNOWLEDGE ENGINE (OFFLINE FALLBACK)
       // ==========================================
-      // A. LONG-TERM INVESTING (INDIAN SHARES)
+      // A. TIME & CLOCK INTELLIGENCE (NEW YORK, INDIA, GLOBAL MARKET SESSIONS)
+      const isTimeOrClock = qL.includes('time') || qL.includes('clock') || qL.includes('hour') || 
+                            qL.includes('session') || qL.includes('america') || qL.includes('usa') || 
+                            qL.includes('new york') || qL.includes('year') || (qL.includes('date') && !qL.includes('mandate'));
+
+      if (isTimeOrClock) {
+        return {
+          recommendation: "MARKET CLOCK INTELLIGENCE",
+          confidence: 100,
+          proof_canvas: false,
+          response: "### 🌐 REAL-TIME GLOBAL MARKET CLOCKS & SESSIONS\n\n" +
+            "| Region / Exchange | Time Zone | Live Date & Time | Trading Session Status |\n" +
+            "| :--- | :--- | :--- | :--- |\n" +
+            "| 🇺🇸 **United States (Wall Street)** | Eastern (ET / New York) | **" + nyDate + "**<br>⏱️ **" + nyTime + " ET** | **" + usMarketStatus + "** |\n" +
+            "| 🇺🇸 **US Central** | Central (CT / Chicago) | " + chiTime + " CT | Commodity Pit |\n" +
+            "| 🇺🇸 **US Pacific** | Pacific (PT / California) | " + laTime + " PT | Tech / Silicon Valley |\n" +
+            "| 🇮🇳 **India (Dalal Street)** | IST (Mumbai / NSE & BSE) | **" + istDate + "**<br>⏱️ **" + istTime + " IST** | **" + indiaMarketStatus + "** |\n" +
+            "| 🇬🇧 **London (LSE)** | GMT / BST | " + lonTime + " | European Session |\n" +
+            "| 🌐 **UTC Reference** | UTC | " + utcDate + "<br>" + utcTime + " | Global Anchor |\n" +
+            "| ₿ **Cryptocurrency** | Global 24/7 | Live 365 Days | **🟢 OPEN 24/7** |\n\n" +
+            "#### 🕒 CRITICAL TRADING HOURS RULES:\n" +
+            "- **US Markets (NYSE & NASDAQ):** Regular hours are **09:30 AM – 04:00 PM Eastern Time (ET)**, Monday through Friday. Pre-market opens at 04:00 AM ET; After-hours runs until 08:00 PM ET.\n" +
+            "- **Indian Markets (NSE & BSE):** Regular hours are **09:15 AM – 03:30 PM IST**, Monday through Friday.\n" +
+            "- **Current US Market State:** " + usMarketStatus + "."
+        };
+      }
+
+      // B. LONG-TERM INVESTING (INDIAN SHARES)
       if (isLongTerm && (qL.includes('india') || qL.includes('indian') || qL.includes('nse') || qL.includes('bse') || qL.includes('nifty') || qL.includes('share') || qL.includes('stock'))) {
         return {
           recommendation: "LONG-TERM BLUE-CHIP PORTFOLIO",

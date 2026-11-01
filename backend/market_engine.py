@@ -9,6 +9,7 @@ import os
 import json
 import base64
 import urllib.request
+from datetime import datetime, timezone, timedelta
 import re
 import time
 import math
@@ -878,6 +879,7 @@ class MarketDataEngine:
         system_instruction = (
             "You are Quantum Alpha AI, a Wall-Street and Dalal-Street grade Senior Investment Analyst and Autonomous Trading Strategist. "
             "You provide practical, common-sense financial wisdom, deep market commentary, and realistic risk management. "
+            "When the user asks about the time, clocks, or market sessions (e.g. 'what is the current time in america'), reference the exact time zones provided: US Eastern Time (New York / NYSE & NASDAQ), Pacific Time, and Indian Standard Time (IST - Dalal Street). State the exact current time in America and explicitly state whether US regular trading sessions (09:30 AM – 04:00 PM ET, Mon-Fri) or Indian sessions (09:15 AM – 03:30 PM IST, Mon-Fri) are OPEN, PRE-MARKET, AFTER-HOURS, or CLOSED (Weekend/Overnight). "
             "When the user asks about long-term investing, Indian shares, or wealth creation, recommend top moat compounders (like HDFC Bank, TCS, Reliance, L&T) with solid rationale. "
             "When the user asks about short-term trading, specify exact entry, target, and stop-loss boundaries. Format with clean markdown headers and bullet points."
         )
@@ -947,8 +949,24 @@ class MarketDataEngine:
 
         q_lower = query.lower()
 
+        # Compute accurate world clocks
+        utc_now = datetime.now(timezone.utc)
+        et_now = utc_now - timedelta(hours=5)
+        ist_now = utc_now + timedelta(hours=5, minutes=30)
+        pt_now = utc_now - timedelta(hours=8)
+
+        clock_ctx = (
+            f"GLOBAL REAL-TIME MARKET CLOCKS:\n"
+            f"- US Eastern Time (New York / Wall Street NYSE & NASDAQ): {et_now.strftime('%A, %B %d, %Y %I:%M:%S %p')} ET\n"
+            f"- US Pacific Time (Los Angeles / Silicon Valley): {pt_now.strftime('%A, %B %d, %Y %I:%M:%S %p')} PT\n"
+            f"- India Standard Time (IST - Dalal Street NSE & BSE): {ist_now.strftime('%A, %B %d, %Y %I:%M:%S %p')} IST\n"
+            f"- UTC Reference Time: {utc_now.strftime('%A, %B %d, %Y %I:%M:%S %p')} UTC\n"
+            f"- Cryptocurrency Markets: 24/7/365 Live Open\n\n"
+        )
+
         # Telemetry context string for Gemini
         context = (
+            clock_ctx +
             f"Asset: {name} ({symbol}) | Market: {market} | Sector: {sector}\n"
             f"Live Price: {curr} {price:,.2f} ({'+' if chg>=0 else ''}{chg:.2f}% 24h)\n"
             f"RSI(14): {rsi:.1f} | EMA 20: {curr} {ema20:,.2f} | EMA 50: {curr} {ema50:,.2f} | MACD: {macd:+.2f}\n"
@@ -1079,6 +1097,37 @@ class MarketDataEngine:
                     extracted_amount = val
             except Exception:
                 extracted_amount = None
+
+        # -------------------------------------------------------------
+        # Category 0: Real-Time Global Market Clock Intelligence
+        # -------------------------------------------------------------
+        if any(w in q_lower for w in ["time", "clock", "hour", "session", "america", "usa", "new york", "year", "date"]):
+            is_us_open = (et_now.weekday() < 5 and 9.5 <= et_now.hour + et_now.minute/60.0 < 16.0)
+            is_in_open = (ist_now.weekday() < 5 and 9.25 <= ist_now.hour + ist_now.minute/60.0 < 15.5)
+            text = (
+                "### 🌐 REAL-TIME GLOBAL MARKET CLOCKS & SESSIONS\n\n"
+                "| Region / Exchange | Time Zone | Live Date & Time | Trading Session Status |\n"
+                "| :--- | :--- | :--- | :--- |\n"
+                f"| 🇺🇸 **United States (Wall Street)** | Eastern (ET / New York) | **{et_now.strftime('%A, %B %d, %Y')}**<br>⏱️ **{et_now.strftime('%I:%M:%S %p')} ET** | **{'OPEN' if is_us_open else 'CLOSED (Weekend/Overnight)'}** |\n"
+                f"| 🇺🇸 **US Pacific** | Pacific (PT / California) | {pt_now.strftime('%I:%M:%S %p')} PT | Tech / Silicon Valley |\n"
+                f"| 🇮🇳 **India (Dalal Street)** | IST (Mumbai / NSE & BSE) | **{ist_now.strftime('%A, %B %d, %Y')}**<br>⏱️ **{ist_now.strftime('%I:%M:%S %p')} IST** | **{'OPEN' if is_in_open else 'CLOSED (Weekend/Post-Market)'}** |\n"
+                f"| 🌐 **UTC Reference** | UTC | {utc_now.strftime('%A, %B %d, %Y')}<br>{utc_now.strftime('%I:%M:%S %p')} UTC | Global Anchor |\n"
+                "| ₿ **Cryptocurrency** | Global 24/7 | Live 365 Days | **🟢 OPEN 24/7** |\n\n"
+                "#### 🕒 TRADING HOURS RULES:\n"
+                "- **US Markets (NYSE & NASDAQ):** Regular trading hours are **09:30 AM – 04:00 PM Eastern Time (ET)**, Monday through Friday. Pre-market opens at 04:00 AM ET.\n"
+                "- **Indian Markets (NSE & BSE):** Regular trading hours are **09:15 AM – 03:30 PM IST**, Monday through Friday.\n"
+            )
+            return {
+                "response": text,
+                "recommendation": "MARKET CLOCK INTELLIGENCE",
+                "confidence": 100,
+                "target_price": target,
+                "stop_loss": sl,
+                "symbol": symbol,
+                "current_price": price,
+                "currency": curr,
+                "source": "GLOBAL_CLOCK_ENGINE"
+            }
 
         # -------------------------------------------------------------
         # Category 1: Capital Investment & Exact Profit Calculation
