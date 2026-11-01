@@ -2394,45 +2394,45 @@ window.submitFrontAiQuery = async function(overridePrompt) {
   const thread = document.getElementById('frontAiChatThread');
   if (thread) thread.style.display = 'flex';
 
-  const pipeline = document.getElementById('aiAnalyzerPipeline');
-  if (pipeline) {
-    pipeline.style.display = 'flex';
-    document.querySelectorAll('.pipeline-step').forEach(s => {
-      s.classList.remove('done');
-      s.classList.remove('active');
-    });
-    const s1 = document.getElementById('pipeStep1');
-    if (s1) s1.classList.add('active');
+  const scrollContainer = document.getElementById('chatScrollContainer');
+
+  // 1. Append User Message Bubble
+  const userRow = document.createElement('div');
+  userRow.className = 'chat-message-row user';
+  userRow.innerHTML = `<div class="message-bubble user-bubble">${prompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+  thread.appendChild(userRow);
+
+  // Clear input
+  if (input && !overridePrompt) {
+    input.value = '';
+    input.style.height = 'auto';
   }
 
-  // Append user message
-  const userMsgEl = document.createElement('div');
-  userMsgEl.className = 'thread-user-msg';
-  userMsgEl.textContent = prompt;
-  thread.appendChild(userMsgEl);
+  // 2. Append Assistant Thinking Indicator Bubble
+  const thinkingId = 'thinking_' + Date.now();
+  const thinkingRow = document.createElement('div');
+  thinkingRow.className = 'chat-message-row assistant thinking';
+  thinkingRow.id = thinkingId;
+  thinkingRow.innerHTML = `
+    <div class="msg-avatar">🧠</div>
+    <div class="message-bubble assistant-bubble">
+      <div class="typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="thinking-label">Quantum AI is analyzing live telemetry & calculating exact buy/sell...</span>
+    </div>
+  `;
+  thread.appendChild(thinkingRow);
 
-  if (input && !overridePrompt) input.value = '';
+  if (scrollContainer) {
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
+  }
 
   const btn = document.getElementById('btnFrontAiSubmit');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = 'Sending to Analyzer...';
+    btn.style.opacity = '0.6';
   }
-
-  // Animate pipeline stages
-  setTimeout(() => {
-    const s1 = document.getElementById('pipeStep1');
-    const s2 = document.getElementById('pipeStep2');
-    if (s1) { s1.classList.remove('active'); s1.classList.add('done'); }
-    if (s2) s2.classList.add('active');
-  }, 400);
-
-  setTimeout(() => {
-    const s2 = document.getElementById('pipeStep2');
-    const s3 = document.getElementById('pipeStep3');
-    if (s2) { s2.classList.remove('active'); s2.classList.add('done'); }
-    if (s3) s3.classList.add('active');
-  }, 800);
 
   try {
     const res = await fetch('/api/ai-chat', {
@@ -2446,14 +2446,9 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     });
     const data = await res.json();
 
-    const s3 = document.getElementById('pipeStep3');
-    const s4 = document.getElementById('pipeStep4');
-    if (s3) { s3.classList.remove('active'); s3.classList.add('done'); }
-    if (s4) s4.classList.add('done');
-
-    setTimeout(() => {
-      if (pipeline) pipeline.style.display = 'none';
-    }, 1200);
+    // Remove thinking bubble
+    const tEl = document.getElementById(thinkingId);
+    if (tEl) tEl.remove();
 
     aiQueryCounter++;
     const canvasId = `ai_proof_canvas_${aiQueryCounter}`;
@@ -2516,27 +2511,34 @@ window.submitFrontAiQuery = async function(overridePrompt) {
       `;
     }
 
-    const aiCard = document.createElement('div');
-    aiCard.className = 'thread-ai-card';
-    aiCard.innerHTML = `
-      <div class="ai-card-top">
-        <div class="ai-analyst-tag">
-          <span style="font-size:14px;">🧠</span>
-          <span>AI MARKET ANALYST • VERIFIED TELEMETRY</span>
+    // 3. Append Assistant Message Row
+    const aiRow = document.createElement('div');
+    aiRow.className = 'chat-message-row assistant';
+    aiRow.innerHTML = `
+      <div class="msg-avatar">🧠</div>
+      <div class="message-bubble assistant-bubble">
+        <div class="assistant-header">
+          <span class="assistant-name">Quantum AI Analyst</span>
+          <span class="model-badge">Gemini 3.5 Flash</span>
+          <span class="conviction-badge">CONVICTION: ${data.confidence || 96}%</span>
         </div>
-        <span class="front-ai-status-pill">CONVICTION: ${data.confidence || 96}%</span>
-      </div>
 
-      <div class="ai-card-content">
-        ${formatMarkdownToHtml(data.response)}
-      </div>
+        <div class="assistant-body">
+          ${formatMarkdownToHtml(data.response)}
+        </div>
 
-      ${tradeBlueprintHtml}
+        ${tradeBlueprintHtml}
+
+        <div class="assistant-actions">
+          <button type="button" class="msg-action-btn" onclick="copyAiBubbleText(this)">📋 Copy</button>
+          <button type="button" class="msg-action-btn" onclick="retryLastQuery()">🔄 Re-analyze</button>
+        </div>
+      </div>
     `;
 
-    thread.appendChild(aiCard);
+    thread.appendChild(aiRow);
 
-    // Render the proof canvas diagram only if blueprint exists
+    // Render proof picture canvas if trade setup exists
     if (hasTradeBlueprint) {
       setTimeout(() => {
         drawDualProofPicture(canvasId, data);
@@ -2546,23 +2548,32 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     state.chatHistory.push({ role: 'user', content: prompt });
     state.chatHistory.push({ role: 'assistant', content: data.response });
 
-    aiCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (scrollContainer) {
+      setTimeout(() => {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }, 120);
+    }
   } catch (err) {
-    if (pipeline) pipeline.style.display = 'none';
-    const errCard = document.createElement('div');
-    errCard.className = 'thread-ai-card';
-    errCard.innerHTML = `<span style="color:var(--bearish);">AI Analyzer connectivity error. Retrying connection...</span>`;
-    thread.appendChild(errCard);
+    const tEl = document.getElementById(thinkingId);
+    if (tEl) tEl.remove();
+
+    const errRow = document.createElement('div');
+    errRow.className = 'chat-message-row assistant';
+    errRow.innerHTML = `
+      <div class="msg-avatar">🧠</div>
+      <div class="message-bubble assistant-bubble">
+        <span style="color:var(--bearish);">AI Engine connectivity issue. Retrying telemetry connection...</span>
+      </div>
+    `;
+    thread.appendChild(errRow);
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Ask AI Analyzer ⚡';
+      btn.style.opacity = '1';
     }
   }
 };
 
-
-// ========================================================
 // CHATGPT-STYLE QUANTUM TRADE ANALYZER CONTROLLERS
 // ========================================================
 window.toggleSidebar = function() {
@@ -2629,4 +2640,35 @@ window.selectAsset = function(symbol) {
     const s = document.getElementById('chatSidebar');
     if (s && window.innerWidth <= 768) s.classList.remove('open');
   }, 100);
+};
+
+
+window.copyAiBubbleText = function(btn) {
+  const bubble = btn.closest('.assistant-bubble');
+  if (!bubble) return;
+  const body = bubble.querySelector('.assistant-body');
+  if (body) {
+    const text = body.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+    });
+  }
+};
+
+window.retryLastQuery = function() {
+  const history = (typeof state !== 'undefined' && state.chatHistory) ? state.chatHistory : [];
+  const lastUser = [...history].reverse().find(m => m.role === 'user');
+  if (lastUser && lastUser.content) {
+    window.submitFrontAiQuery(lastUser.content);
+  }
+};
+
+window.toggleSidebar = function() {
+  const s = document.getElementById('chatSidebar');
+  const b = document.getElementById('sidebarBackdrop');
+  if (s) {
+    s.classList.toggle('open');
+    if (b) b.classList.toggle('active', s.classList.contains('open'));
+  }
 };
