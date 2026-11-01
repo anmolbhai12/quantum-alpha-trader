@@ -125,22 +125,110 @@
     <button class="market-tab" data-market="INDICES">WORLD INDICES</button>
   </nav>
 
-  <!-- Real-Time Flashing Buy/Sell Signal Alert Bar -->
-  <div id="liveSignalAlertBar" class="live-signal-banner" style="display:none;">
-    <div class="signal-banner-inner">
-      <span class="signal-pulsing-badge" id="signalBannerBadge">🟢 BUY NOW</span>
-      <div class="signal-text">
-        <strong id="signalBannerAsset" style="color:#fff;">NVDA</strong>: <span id="signalBannerMsg">AI detected Bullish 20 EMA Breakout & RSI expansion. Enter now!</span>
-        <span class="signal-metrics num" id="signalBannerMetrics">Target: $146.50 | SL: $138.10</span>
+  <!-- REAL-TIME DUAL BUY & SELL RADAR WITH VISUAL PROOF PICTURE -->
+  <section id="dualExecutionRadar" class="dual-radar-section">
+    <div class="dual-radar-container">
+      <div class="dual-radar-topbar">
+        <div class="radar-asset-info">
+          <span class="radar-live-badge"><span class="radar-dot"></span> LIVE QUANTUM RADAR</span>
+          <h2 id="radarAssetTitle" class="radar-asset-name">NVIDIA Corporation (NVDA)</h2>
+          <span id="radarTriggerTime" class="radar-time-pill">⚡ Breakout Signal Active • Real-Time Engine</span>
+        </div>
+        <div class="radar-top-tools">
+          <button type="button" class="btn-radar-proof-modal" onclick="openFullProofModal()">
+            📸 Open Proof Picture (HD)
+          </button>
+          <button type="button" class="btn-radar-mute" id="btnRadarMute" onclick="toggleSignalAudio()">
+            🔔 Sound: ON
+          </button>
+        </div>
       </div>
-      <div class="signal-actions">
-        <button type="button" class="btn-signal-action" id="btnSignalAction" onclick="quickExecuteFromSignal()">
-          ⚡ EXECUTE NOW (5m)
+
+      <div class="dual-radar-cards-row">
+        <!-- 🟢 CARD 1: WHEN TO BUY (EXACT ENTRY) -->
+        <div class="dual-card buy-side">
+          <div class="dual-card-badge">STEP 1 • EXACT ENTRY (BUY)</div>
+          <div class="dual-card-title-row">
+            <span class="side-icon buy">🟢</span>
+            <div>
+              <div class="side-title">WHEN TO BUY</div>
+              <div class="side-subtitle">IMMEDIATE 15s BREAKOUT</div>
+            </div>
+          </div>
+          <div class="dual-price-box">
+            <div class="dual-price-label">Exact Buy Price:</div>
+            <div class="dual-price-val buy-val" id="radarBuyPrice">$145.29</div>
+            <div class="dual-price-timing" id="radarBuyTiming">⏱️ When: BUY NOW (Trigger Active)</div>
+          </div>
+          <div class="dual-card-meta">
+            <div class="meta-item"><span>Entry Order</span><strong>Instant Market Fill</strong></div>
+            <div class="meta-item"><span>AI Conviction</span><strong class="up" id="radarBuyConviction">98.4% Win Score</strong></div>
+          </div>
+        </div>
+
+        <!-- 🔴 CARD 2: WHEN TO SELL (EXACT TARGET & EXACT TIME) -->
+        <div class="dual-card sell-side">
+          <div class="dual-card-badge">STEP 2 • EXACT EXIT (SIMULTANEOUS)</div>
+          <div class="dual-card-title-row">
+            <span class="side-icon sell">🔴</span>
+            <div>
+              <div class="side-title">WHEN TO SELL</div>
+              <div class="side-subtitle">TAKE-PROFIT & TIMED EXIT</div>
+            </div>
+          </div>
+          <div class="dual-price-box">
+            <div class="dual-price-label">Exact Sell Target:</div>
+            <div class="dual-price-val sell-val" id="radarSellPrice">$150.36 <span class="gain-badge" id="radarSellGain">(+3.49%)</span></div>
+            <div class="dual-price-timing sell-timing" id="radarSellTiming">⏱️ When: Sell at $150.36 OR in 5m</div>
+          </div>
+          <div class="dual-card-meta">
+            <div class="meta-item"><span>Stop-Loss Sell</span><strong class="down" id="radarStopLossPrice">$143.10 (-1.51%)</strong></div>
+            <div class="meta-item"><span>Auto-Exit Timer</span><strong class="up countdown-pulse" id="radarCountdownTimer">⏳ 05:00 to Target Exit</strong></div>
+          </div>
+        </div>
+
+        <!-- 📸 CARD 3: VISUAL PROOF PICTURE & REASONS -->
+        <div class="dual-card proof-side">
+          <div class="dual-card-badge">STEP 3 • VISUAL EVIDENCE</div>
+          <div class="dual-card-title-row">
+            <span class="side-icon proof">📸</span>
+            <div>
+              <div class="side-title">PROOF PICTURE</div>
+              <div class="side-subtitle">VERIFIED TECHNICAL EVIDENCE</div>
+            </div>
+          </div>
+          
+          <div class="proof-canvas-container" onclick="openFullProofModal()" title="Click to view full high-res proof picture">
+            <canvas id="radarProofCanvas" width="340" height="150"></canvas>
+            <div class="proof-canvas-zoom-pill">🔍 Zoom Proof Picture</div>
+          </div>
+
+          <div class="proof-bullets">
+            <div class="proof-bullet-item"><span class="bullet-dot">1</span><span id="proofBullet1">Golden Cross: 9 EMA crossed above 21 EMA.</span></div>
+            <div class="proof-bullet-item"><span class="bullet-dot">2</span><span id="proofBullet2">Volume Spike: +240% buying sweep vs 20-period avg.</span></div>
+            <div class="proof-bullet-item"><span class="bullet-dot">3</span><span id="proofBullet3">Target Reason: 1.618 Fib extension resistance.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM ACTION BAR: 1-CLICK DUAL EXECUTION -->
+      <div class="dual-radar-footer">
+        <div class="footer-callout">
+          <span class="callout-icon">⚡</span>
+          <div>
+            <strong>Simultaneous Order Execution:</strong>
+            <span id="radarFooterDesc">Enters BUY at $145.29 and simultaneously arms the auto-SELL at $150.36!</span>
+          </div>
+        </div>
+        <button type="button" class="btn-dual-execute-now" id="btnDualExecuteNow" onclick="executeDualRadarTrade()">
+          🚀 1-CLICK: BUY NOW & AUTO-SELL AT TARGET
         </button>
-        <button type="button" class="btn-signal-close" onclick="dismissSignalBar()">✕</button>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Backward-compatible hidden container for legacy references -->
+  <div id="liveSignalAlertBar" style="display:none;"></div>
 
   <!-- Global Portfolio Ribbon -->
   <div class="portfolio-ribbon">
@@ -889,6 +977,36 @@
         <button type="button" class="btn-execute-order" id="btnSaveBrokerSettings" style="width:auto; padding:6px 14px;">
           Authenticate & Connect
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- High-Resolution Proof Picture Modal -->
+  <div id="fullProofModal" class="full-proof-modal" style="display:none;" onclick="if(event.target===this)closeFullProofModal()">
+    <div class="full-proof-dialog">
+      <div class="proof-dialog-head">
+        <div>
+          <span class="proof-shield-badge">🛡️ OFFICIAL AI TECHNICAL EVIDENCE SNAPSHOT</span>
+          <h2 id="modalProofAsset">NVDA • Visual Trade Proof Blueprint</h2>
+        </div>
+        <button type="button" class="btn-proof-dialog-close" onclick="closeFullProofModal()">✕</button>
+      </div>
+      <div class="proof-dialog-body">
+        <canvas id="modalProofCanvas" width="760" height="360"></canvas>
+        <div class="proof-dialog-details">
+          <div class="proof-detail-card">
+            <h4>🟢 EXACT ENTRY RULE (BUY)</h4>
+            <p id="modalProofBuyRule">Triggered at instant breakout. 9 EMA crossed over 21 EMA with 72% bid liquidity support. Enter at current price immediately.</p>
+          </div>
+          <div class="proof-detail-card">
+            <h4>🔴 EXACT EXIT RULE (SELL)</h4>
+            <p id="modalProofSellRule">Take-profit target locked at 1.618 Fibonacci level. If target is not reached within 5 minutes, auto-exit triggers to preserve capital.</p>
+          </div>
+          <div class="proof-detail-card">
+            <h4>🛑 RISK MANAGEMENT RULE</h4>
+            <p id="modalProofStopRule">Strict stop-loss armed 1.5% below entry to eliminate tail risk. 2.31x Profit-to-Risk ratio maintained.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

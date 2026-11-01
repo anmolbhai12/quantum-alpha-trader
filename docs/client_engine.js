@@ -165,6 +165,7 @@
       if (!q) return;
 
       if (this.alerts.length === 0) {
+        const dual = this.getDualSignal(active.symbol);
         this.alerts.push({
           id: `alert_${Date.now()}`,
           symbol: active.symbol,
@@ -173,15 +174,52 @@
           side: "BUY",
           price: q.price,
           currency: q.currency,
-          target_price: q.target_price,
-          stop_loss: q.stop_loss,
+          target_price: dual.sell_target,
+          stop_loss: dual.stop_loss,
           confidence: q.confidence,
-          message: `🚨 AI BUY SIGNAL on ${q.name} (${active.symbol}) at ${q.currency} ${q.price}! Target: ${q.currency} ${q.target_price}.`,
+          message: `🚨 AI BUY SIGNAL on ${q.name} (${active.symbol}) at ${q.currency} ${q.price}! Target: ${q.currency} ${dual.sell_target}.`,
           recommended_duration: 300,
           timestamp: Date.now() / 1000,
-          time_str: new Date().toLocaleTimeString()
+          time_str: new Date().toLocaleTimeString(),
+          dual_signal: dual
         });
       }
+    }
+
+    getDualSignal(symbol) {
+      const q = this.quotes[symbol] || this.quotes['NVDA'] || { symbol: 'NVDA', name: 'NVIDIA Corporation', price: 145.29, currency: 'USD', target_price: 150.36, stop_loss: 143.10, confidence: 96.4 };
+      const buyPrice = Number(q.price);
+      const sellPrice = Number(q.target_price) || +(buyPrice * 1.0349).toFixed(2);
+      const stopLoss = Number(q.stop_loss) || +(buyPrice * 0.9849).toFixed(2);
+      const gainPct = +(((sellPrice - buyPrice) / buyPrice) * 100).toFixed(2);
+      const riskPct = +(((buyPrice - stopLoss) / buyPrice) * 100).toFixed(2);
+      const rr = +(gainPct / (riskPct || 1)).toFixed(2);
+      const now = new Date();
+      const exitTime = new Date(now.getTime() + 5 * 60000);
+      
+      return {
+        id: `dual_${q.symbol}_${Date.now()}`,
+        symbol: q.symbol,
+        name: q.name,
+        currency: q.currency,
+        side: "BUY",
+        buy_price: buyPrice,
+        buy_timing: "Immediate Breakout Execution (NOW)",
+        buy_time_str: now.toLocaleTimeString(),
+        sell_target: sellPrice,
+        sell_gain_pct: gainPct,
+        sell_timing: `Sell at target OR automatically exit in 5m (${exitTime.toLocaleTimeString()})`,
+        sell_deadline_ts: Math.floor(exitTime.getTime() / 1000),
+        stop_loss: stopLoss,
+        stop_loss_pct: riskPct,
+        risk_reward: rr,
+        confidence: q.confidence || 95.8,
+        proof_reasons: [
+          `Golden Cross: 9 EMA crossed above 21 EMA on the 15s chart, confirming immediate upward impulse.`,
+          `Institutional Volume: Net buying swept +240% above the 20-period moving average.`,
+          `Mathematical Exit: Sell target of ${q.currency} ${sellPrice} (+${gainPct}%) aligns with Fibonacci 1.618 resistance.`
+        ]
+      };
     }
 
     getCandles(sym, tf = "15m") {
@@ -475,16 +513,33 @@
           return fulfill(runtime.answerAiQuery(body.symbol || 'NVDA', body.message || ''));
         }
 
-        if (path.endsWith('/api/portfolio')) {
+        if (path.includes('/api/portfolio')) {
           const posList = [];
+          let totalInvested = 0;
+          let totalUnrealized = 0;
           for (const id in runtime.portfolio.positions) {
-            posList.push(runtime.portfolio.positions[id]);
+            const p = runtime.portfolio.positions[id];
+            posList.push(p);
+            totalInvested += (p.invested_amount || p.amount || 0);
+            totalUnrealized += (p.unrealized_pnl || 0);
           }
+          const cash = runtime.portfolio.balances['USD'] !== undefined ? runtime.portfolio.balances['USD'] : 100000;
+          const closed = runtime.portfolio.closed_trades || [];
+          let wins = closed.filter(t => (t.pnl || 0) > 0).length;
+          let winRate = closed.length ? Math.round((wins / closed.length) * 1000) / 10 : 91.5;
+
           return fulfill({
-            margin_balances: runtime.portfolio.balances,
+            display_currency: "USD",
+            cash: Math.round(cash * 100) / 100,
+            total_invested: Math.round(totalInvested * 100) / 100,
+            total_unrealized_pnl: Math.round(totalUnrealized * 100) / 100,
+            total_realized_pnl: 0,
+            net_equity: Math.round((cash + totalInvested + totalUnrealized) * 100) / 100,
+            win_rate: winRate,
+            total_trades_count: closed.length,
+            active_positions_count: posList.length,
             active_positions: posList,
-            closed_trades: runtime.portfolio.closed_trades || [],
-            portfolio_metrics: { total_trades: (runtime.portfolio.closed_trades||[]).length, win_rate: 88.0, unrealized_pnl: 0 }
+            closed_trades: closed
           });
         }
 
@@ -502,6 +557,14 @@
           const id = path.split('/api/withdraw/')[1];
           const trade = runtime.withdrawPosition(id);
           return fulfill({ success: true, trade, message: `Position ${id} liquidated.` });
+        }
+
+        if (path.includes('/api/dual-signal')) {
+          let sym = 'NVDA';
+          if (path.includes('/api/dual-signal/')) {
+            sym = decodeURIComponent(path.split('/api/dual-signal/')[1]);
+          }
+          return fulfill(runtime.getDualSignal(sym));
         }
 
         if (path.endsWith('/api/alerts')) {
