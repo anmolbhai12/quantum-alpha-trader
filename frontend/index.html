@@ -6,1105 +6,295 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>NEXUS TRADER AI | Institutional Multi-Asset & Algorithmic Execution Platform</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
+  <title>Quantum AI Trade Analyzer • ChatGPT-Style Market Intelligence</title>
+  <link rel="stylesheet" href="style.css?v=5.0">
   <script src="lightweight-charts.js"></script>
   <script src="qrcode.min.js"></script>
 </head>
 <body>
 
-  <!-- Top Application Header -->
-  <header class="app-header">
-    <div class="brand-section">
-      <div class="brand-logo">NX</div>
-      <div>
-        <div class="brand-title">
-          NEXUS TRADER
-          <span class="brand-badge">INSTITUTIONAL AI</span>
+  <!-- Fullscreen ChatGPT-Style Trade Analyzer Layout -->
+  <div class="chatgpt-layout">
+    
+    <!-- Left Collapsible Sidebar -->
+    <aside class="chat-sidebar" id="chatSidebar">
+      <div class="sidebar-top">
+        <div class="brand-row">
+          <div class="brand-logo">NX</div>
+          <div class="brand-info">
+            <div class="brand-name">Quantum Trade AI</div>
+            <div class="brand-pill">Gemini 3.5 Active</div>
+          </div>
+          <button type="button" class="btn-sidebar-toggle" onclick="toggleSidebar()" title="Close Sidebar">✕</button>
         </div>
-      </div>
-    </div>
 
-    <!-- Universal Search Bar -->
-    <div class="search-container">
-      <div class="search-input-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="globalSearchInput" class="global-search-input" placeholder="Search any stock, crypto, forex worldwide (e.g. NVDA, Reliance, BTC, Gold)..." autocomplete="off">
-        <span class="search-shortcut">ESC</span>
-      </div>
-      <!-- Autocomplete Dropdown Menu -->
-      <div class="search-results-menu" id="searchResultsMenu"></div>
-    </div>
-
-    <!-- Live Institutional World Clocks (Hidden to reduce clutter) -->
-    <div class="world-clocks-strip num" id="worldClocksStrip" style="display:none;">
-      <span class="clock-item">UTC <strong id="clockUtc">--:--:--</strong></span>
-      <span class="clock-item">NYC <strong id="clockNyc">--:--:--</strong></span>
-      <span class="clock-item">LON <strong id="clockLon">--:--:--</strong></span>
-      <span class="clock-item">MUM <strong id="clockMum">--:--:--</strong></span>
-    </div>
-
-    <!-- Header Right Controls -->
-    <div class="header-actions">
-      <!-- 12 Global Currencies Switcher -->
-      <div class="currency-select-box">
-        <span style="color:var(--text-faint); font-size:10px;">CURRENCY:</span>
-        <select id="currencySelect" class="styled-select">
-          <option value="USD">USD ($) United States</option>
-          <option value="INR">INR (₹) India</option>
-          <option value="EUR">EUR (€) Eurozone</option>
-          <option value="GBP">GBP (£) United Kingdom</option>
-          <option value="JPY">JPY (¥) Japan</option>
-          <option value="AED">AED (د.إ) UAE Dirham</option>
-          <option value="CAD">CAD (C$) Canada</option>
-          <option value="AUD">AUD (A$) Australia</option>
-          <option value="CHF">CHF (Fr) Switzerland</option>
-          <option value="SGD">SGD (S$) Singapore</option>
-          <option value="CNY">CNY (¥) China</option>
-          <option value="SAR">SAR (﷼) Saudi Arabia</option>
-        </select>
-      </div>
-
-      <div style="display:none;">
-        <select id="routingSelect"><option value="SANDBOX">Sandbox</option></select>
-        <button type="button" id="btnOpenPhoneModal"></button>
-        <button type="button" id="btnToggleAiChat"></button>
-      </div>
-
-      <!-- Live Buy & Sell Alert Notifications Bell -->
-      <div class="alert-bell-wrapper">
-        <button type="button" id="btnToggleAlerts" class="btn-alerts-bell" onclick="toggleAlertsDrawer()" title="Live Buy & Sell Signal Notifications">
-          <span>🔔</span>
-          <span id="alertBellBadge" class="alert-badge">0</span>
+        <!-- + New Analysis Button -->
+        <button type="button" class="btn-new-chat" onclick="startNewAnalysis()">
+          <span>+</span> New Analysis
         </button>
-        <!-- Alerts Dropdown Drawer -->
-        <div class="alerts-dropdown" id="alertsDropdown" style="display:none;">
-          <div class="alerts-dropdown-head">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span>🚨</span>
-              <strong style="color:#fff; font-size:11px;">LIVE SIGNAL RADAR</strong>
-            </div>
-            <button type="button" class="btn-clear-alerts" onclick="clearAlertsFeed()">Clear All</button>
+      </div>
+
+      <div class="sidebar-content-scroll">
+        <!-- Market Telemetry Asset Switcher -->
+        <div class="sidebar-section">
+          <div class="section-title">MARKET TELEMETRY</div>
+          <div class="sidebar-asset-list">
+            <button type="button" class="sidebar-asset-btn active" data-sym="NVDA" onclick="selectAsset('NVDA')">
+              <span class="asset-dot"></span>
+              <span class="asset-sym">NVDA</span>
+              <span class="asset-desc">NVIDIA • AI Tech</span>
+            </button>
+            <button type="button" class="sidebar-asset-btn" data-sym="TSLA" onclick="selectAsset('TSLA')">
+              <span class="asset-dot"></span>
+              <span class="asset-sym">TSLA</span>
+              <span class="asset-desc">Tesla • Momentum</span>
+            </button>
+            <button type="button" class="sidebar-asset-btn" data-sym="AAPL" onclick="selectAsset('AAPL')">
+              <span class="asset-dot"></span>
+              <span class="asset-sym">AAPL</span>
+              <span class="asset-desc">Apple • Mega Cap</span>
+            </button>
+            <button type="button" class="sidebar-asset-btn" data-sym="RELIANCE.NS" onclick="selectAsset('RELIANCE.NS')">
+              <span class="asset-dot"></span>
+              <span class="asset-sym">RELIANCE</span>
+              <span class="asset-desc">Dalal St • Blue Chip</span>
+            </button>
+            <button type="button" class="sidebar-asset-btn" data-sym="BTC/USD" onclick="selectAsset('BTC/USD')">
+              <span class="asset-dot"></span>
+              <span class="asset-sym">BITCOIN</span>
+              <span class="asset-desc">Crypto 24/7</span>
+            </button>
+            <button type="button" class="sidebar-asset-btn" data-sym="GC=F" onclick="selectAsset('GC=F')">
+              <span class="asset-dot"></span>
+              <span class="asset-sym">GOLD</span>
+              <span class="asset-desc">Commodity • Safe Haven</span>
+            </button>
           </div>
-          <div class="alerts-feed-list" id="alertsFeedList">
-            <div style="padding:16px; text-align:center; color:var(--text-faint); font-size:11px;">
-              Listening for algorithmic breakouts and price targets...
-            </div>
+        </div>
+
+        <!-- Saved Inquiries & Quick Scans -->
+        <div class="sidebar-section">
+          <div class="section-title">QUICK SCANS & PLAYBOOKS</div>
+          <div class="sidebar-prompts-list">
+            <button type="button" class="sidebar-prompt-item" onclick="quickFrontAiAsk('in which indian share i can get profit if i want to invest for long term')">
+              <span>🇮🇳</span> Indian Long-Term Stocks
+            </button>
+            <button type="button" class="sidebar-prompt-item" onclick="quickFrontAiAsk('Should I buy NVDA right now? Give me exact Buy and Sell')">
+              <span>🟢</span> NVDA Buy & Sell Timing
+            </button>
+            <button type="button" class="sidebar-prompt-item" onclick="quickFrontAiAsk('Give me exact Buy and Sell prices for Tesla (TSLA)')">
+              <span>⚡</span> Tesla Momentum Scalp
+            </button>
+            <button type="button" class="sidebar-prompt-item" onclick="quickFrontAiAsk('Which shares are going UP today?')">
+              <span>📈</span> Top Market Gainers
+            </button>
+            <button type="button" class="sidebar-prompt-item" onclick="quickFrontAiAsk('What is Bitcoin (BTC) outlook and when to sell?')">
+              <span>₿</span> Bitcoin Exit Target
+            </button>
+            <button type="button" class="sidebar-prompt-item" onclick="quickFrontAiAsk('which year is today')">
+              <span>📅</span> Live Year & Market Clock
+            </button>
+            <button type="button" class="sidebar-prompt-item" onclick="quickFrontAiAsk('Common sense: How do I protect my money if price drops?')">
+              <span>🛡️</span> Risk Protection Discipline
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Running 5M Trades Dock -->
+        <div class="sidebar-trades-dock" id="activeTradesDeckCard">
+          <div class="trades-dock-head">
+            <span class="trades-title">⚡ ACTIVE 5M TRADES</span>
+            <span class="trades-badge" id="activeTradesCountBadge">0 Running</span>
+          </div>
+          <div id="activePositionsContainer" class="trades-mini-list">
+            <div class="no-trades-hint">No trades active. Execute from any AI blueprint!</div>
           </div>
         </div>
       </div>
 
-      <!-- Feed Status Pulse -->
-      <div class="feed-pulse">
-        <span class="pulse-dot"></span>
-        <span>AI LIVE ENGINE</span>
+      <!-- Sidebar Bottom Controls -->
+      <div class="sidebar-bottom">
+        <div class="currency-row">
+          <span>CURRENCY:</span>
+          <select id="currencySelect" class="styled-select-sm">
+            <option value="USD">USD ($) United States</option>
+            <option value="INR">INR (₹) India</option>
+            <option value="EUR">EUR (€) Eurozone</option>
+            <option value="GBP">GBP (£) United Kingdom</option>
+            <option value="AED">AED (د.إ) UAE Dirham</option>
+            <option value="JPY">JPY (¥) Japan</option>
+            <option value="CAD">CAD (C$) Canada</option>
+            <option value="AUD">AUD (A$) Australia</option>
+            <option value="SGD">SGD (S$) Singapore</option>
+          </select>
+        </div>
+        <div class="ai-model-tag">
+          <span class="model-dot"></span> Powered by Google Gemini 3.5 AI
+        </div>
       </div>
-    </div>
-  </header>
+    </aside>
 
-  <!-- Clean Quick Asset Watchlist -->
-  <div class="quick-asset-strip">
-    <span class="strip-label">SELECT ASSET:</span>
-    <button type="button" class="quick-asset-btn active" onclick="selectAsset('NVDA')">
-      🟢 NVDA (NVIDIA)
-    </button>
-    <button type="button" class="quick-asset-btn" onclick="selectAsset('TSLA')">
-      ⚡ TSLA (Tesla)
-    </button>
-    <button type="button" class="quick-asset-btn" onclick="selectAsset('AAPL')">
-      🍏 AAPL (Apple)
-    </button>
-    <button type="button" class="quick-asset-btn" onclick="selectAsset('RELIANCE.NS')">
-      🇮🇳 RELIANCE (India)
-    </button>
-    <button type="button" class="quick-asset-btn" onclick="selectAsset('BTC/USD')">
-      ₿ BITCOIN (Crypto)
-    </button>
-    <button type="button" class="quick-asset-btn" onclick="selectAsset('GC=F')">
-      🪙 GOLD (Commodity)
-    </button>
-  </div>
-
-  <!-- Legacy Navigation (Hidden to reduce clutter) -->
-  <nav class="market-nav-strip" style="display:none;">
-    <button class="market-tab active" data-market="ALL">ALL</button>
-    <button class="market-tab" data-market="US">US</button>
-    <button class="market-tab" data-market="IN">IN</button>
-    <button class="market-tab" data-market="EU">EU</button>
-    <button class="market-tab" data-market="ASIA">ASIA</button>
-    <button class="market-tab" data-market="CRYPTO">CRYPTO</button>
-    <button class="market-tab" data-market="COMMODITIES">COMMODITIES</button>
-    <button class="market-tab" data-market="FOREX">FOREX</button>
-    <button class="market-tab" data-market="INDICES">INDICES</button>
-  </nav>
-
-  <!-- ========================================================
-       FRONT & CENTER: QUANTUM AI TRADER & REAL-TIME ANALYZER
-       ======================================================== -->
-  <section id="frontAiAnalystHub" class="front-ai-hub">
-    <div class="front-ai-container">
+    <!-- Main Center Chat Experience -->
+    <main class="chat-main">
       
-      <!-- Top Title & Live Status -->
-      <div class="front-ai-header">
-        <div class="front-ai-brand">
-          <div class="ai-avatar-pulse">🧠</div>
-          <div>
-            <div class="ai-badge-row">
-              <span class="front-ai-status-pill"><span class="ai-live-dot"></span> LIVE QUANTUM AI ANALYST</span>
-              <span class="ai-intel-pill">COMMON-SENSE REASONING ENGINE</span>
-              <span class="ai-speed-pill">⚡ 15s - 5m EXECUTION</span>
-            </div>
-            <h1 class="front-ai-title">Conversational AI Analyst: Ask Anything & Get Live Buy / Sell Blueprint</h1>
-            <p class="front-ai-subtitle">
-              Ask in plain English. Your query is sent to the <strong>Quantitative Market Analyzer</strong> and returns with exact <strong>When to Buy</strong>, <strong>When to Sell</strong>, visual proof picture, and sensible financial logic.
-            </p>
+      <!-- Top Bar -->
+      <header class="chat-top-bar">
+        <div class="bar-left">
+          <button type="button" class="btn-menu-hamburger" onclick="toggleSidebar()" title="Toggle Sidebar">
+            ☰
+          </button>
+          <div class="active-asset-indicator" id="topActiveAssetIndicator">
+            <span class="active-sym" id="topActiveSym">NVDA</span>
+            <span class="active-name" id="topActiveName">NVIDIA Corporation</span>
+            <span class="active-price" id="topActivePrice">$145.29</span>
+            <span class="active-change bull" id="topActiveChange">+2.40%</span>
+          </div>
+        </div>
+
+        <div class="bar-right">
+          <!-- Live Notifications Bell -->
+          <button type="button" id="btnToggleAlerts" class="btn-alerts-bell" onclick="toggleAlertsDrawer()" title="Signal Alerts">
+            <span>🔔</span>
+            <span id="alertBellBadge" class="alert-badge">0</span>
+          </button>
+
+          <button type="button" class="btn-clear-chat" onclick="startNewAnalysis()" title="Start New Analysis">
+            🗑️ Clear Chat
+          </button>
+        </div>
+      </header>
+
+      <!-- Alerts Dropdown Drawer -->
+      <div class="alerts-dropdown" id="alertsDropdown" style="display:none;">
+        <div class="alerts-dropdown-head">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span>🚨</span>
+            <strong style="color:#fff; font-size:11px;">LIVE SIGNAL RADAR</strong>
+          </div>
+          <button type="button" class="btn-clear-alerts" onclick="clearAlertsFeed()">Clear All</button>
+        </div>
+        <div class="alerts-feed-list" id="alertsFeedList">
+          <div style="padding:16px; text-align:center; color:var(--text-faint); font-size:11px;">
+            Listening for algorithmic breakouts and price targets...
           </div>
         </div>
       </div>
 
-      <!-- Prominent Question Bar -->
-      <div class="front-ai-input-wrapper">
-        <div class="input-glow-frame">
-          <input type="text" id="frontAiInput" class="front-ai-input" 
-            placeholder="Ask AI Analyst anything... (e.g. 'Should I buy NVDA right now?', 'Give me exact Buy & Sell for Tesla', 'Which shares are going up?')" 
-            onkeydown="if(event.key==='Enter')submitFrontAiQuery()" />
-          <button type="button" id="btnFrontAiSubmit" class="btn-front-ai-submit" onclick="submitFrontAiQuery()">
-            Ask AI Analyzer ⚡
-          </button>
-        </div>
-
-        <!-- Quick Common-Sense Action Chips -->
-        <div class="front-ai-chips">
-          <span class="chips-label">Quick Inquiries:</span>
-          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('in which indian share i can get profit if i want to invest for long term')">
-            🇮🇳 Long-Term Indian Shares
-          </button>
-          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Should I buy NVDA right now?')">
-            🟢 Should I buy NVDA now?
-          </button>
-          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Give me exact Buy and Sell prices for Tesla (TSLA)')">
-            ⚡ Exact Buy & Sell for Tesla
-          </button>
-          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Which shares are going UP today?')">
-            📈 Which shares are going UP?
-          </button>
-          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('What is Bitcoin (BTC) outlook and when to sell?')">
-            ₿ Bitcoin: When to Sell?
-          </button>
-          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('which year is today')">
-            📅 Year & Live Date
-          </button>
-          <button type="button" class="ai-chip" onclick="quickFrontAiAsk('Common sense: How do I protect my money if price drops?')">
-            🧠 Protect Money (Risk Discipline)
-          </button>
-        </div>
-      </div>
-
-      <!-- Active Transmission Pipeline (Visible when query is sent to analyzer) -->
-      <div id="aiAnalyzerPipeline" class="ai-pipeline-bar" style="display:none;">
+      <!-- Active Transmission Pipeline (when analyzing) -->
+      <div id="aiAnalyzerPipeline" class="chat-pipeline-bar" style="display:none;">
         <div class="pipeline-step" id="pipeStep1">
           <span class="step-icon">📡</span>
-          <span class="step-text">1. Query Dispatched to Analyzer</span>
+          <span>Scanning Order Book</span>
         </div>
         <div class="pipeline-arrow">➔</div>
         <div class="pipeline-step" id="pipeStep2">
           <span class="step-icon">📊</span>
-          <span class="step-text">2. Scanning Level-2 Depth & Ticks</span>
+          <span>Calculating Target</span>
         </div>
         <div class="pipeline-arrow">➔</div>
         <div class="pipeline-step" id="pipeStep3">
-          <span class="step-icon">🛡️</span>
-          <span class="step-text">3. Applying Common-Sense Rules</span>
+          <span class="step-icon">🧠</span>
+          <span>Gemini 3.5 AI</span>
         </div>
         <div class="pipeline-arrow">➔</div>
         <div class="pipeline-step" id="pipeStep4">
-          <span class="step-icon">✨</span>
-          <span class="step-text">4. Delivering Buy & Sell Proof</span>
+          <span class="step-icon">⚡</span>
+          <span>Ready</span>
         </div>
       </div>
 
-      <!-- Live AI Conversational Response Container -->
-      <div id="frontAiResponseBox" class="front-ai-response-box">
-        <div class="ai-welcome-card" id="aiWelcomeCard">
-          <div class="welcome-header">
-            <span class="welcome-icon">⚡</span>
-            <strong>Live AI Market Analyst is Standing By</strong>
+      <!-- Scrollable Messages Area -->
+      <div class="chat-scroll-container" id="chatScrollContainer">
+        
+        <!-- Welcome Hero (ChatGPT style) -->
+        <div class="chatgpt-welcome-hero" id="aiWelcomeCard">
+          <div class="welcome-avatar-wrap">
+            <div class="welcome-avatar">🧠</div>
           </div>
-          <p class="welcome-body">
-            Ask any question above or click a prompt chip. The AI sends your query directly to the quantitative analyzer and delivers exact Buy/Sell execution levels, an annotated proof picture, and sensible common-sense logic.
+          <h1 class="welcome-title">Quantum AI Trade Analyzer</h1>
+          <p class="welcome-sub">
+            Ask any financial question in plain English. Get real-time investment reasoning, long-term portfolio picks, or exact When to Buy & When to Sell blueprints with visual technical proof.
           </p>
-        </div>
 
-        <!-- Dynamic Conversation Thread -->
-        <div id="frontAiChatThread" class="front-ai-thread" style="display:none;"></div>
-      </div>
+          <!-- 4 Clean Quick Prompt Suggestion Cards (ChatGPT style) -->
+          <div class="welcome-prompt-grid">
+            <div class="welcome-prompt-card" onclick="quickFrontAiAsk('in which indian share i can get profit if i want to invest for long term')">
+              <div class="card-icon">🇮🇳</div>
+              <div class="card-title">Top Indian Shares for Long Term</div>
+              <div class="card-desc">Structural blue-chip compounders with wide moats on Dalal Street.</div>
+            </div>
 
-    </div>
-  </section>
+            <div class="welcome-prompt-card" onclick="quickFrontAiAsk('Should I buy NVDA right now? Give me exact Buy and Sell')">
+              <div class="card-icon">🟢</div>
+              <div class="card-title">Exact Buy & Sell for NVIDIA</div>
+              <div class="card-desc">Live entry price, sell target (+3.5%), and 5-minute exit window.</div>
+            </div>
 
-  <!-- REAL-TIME DUAL BUY & SELL RADAR WITH VISUAL PROOF PICTURE -->
-  <section id="dualExecutionRadar" class="dual-radar-section">
-    <div class="dual-radar-container">
-      <div class="dual-radar-topbar">
-        <div class="radar-asset-info">
-          <span class="radar-live-badge"><span class="radar-dot"></span> LIVE QUANTUM RADAR</span>
-          <h2 id="radarAssetTitle" class="radar-asset-name">NVIDIA Corporation (NVDA)</h2>
-          <span id="radarTriggerTime" class="radar-time-pill">⚡ Breakout Signal Active • Real-Time Engine</span>
-        </div>
-        <div class="radar-top-tools">
-          <button type="button" class="btn-radar-proof-modal" onclick="openFullProofModal()">
-            📸 Open Proof Picture (HD)
-          </button>
-          <button type="button" class="btn-radar-mute" id="btnRadarMute" onclick="toggleSignalAudio()">
-            🔔 Sound: ON
-          </button>
-        </div>
-      </div>
+            <div class="welcome-prompt-card" onclick="quickFrontAiAsk('Which shares are going UP today?')">
+              <div class="card-icon">📈</div>
+              <div class="card-title">Top Market Gainers Today</div>
+              <div class="card-desc">Scan real-time breakout volume sweeps across US, India, and Crypto.</div>
+            </div>
 
-      <div class="dual-radar-cards-row">
-        <!-- 🟢 CARD 1: WHEN TO BUY (EXACT ENTRY) -->
-        <div class="dual-card buy-side">
-          <div class="dual-card-badge">STEP 1 • EXACT ENTRY (BUY)</div>
-          <div class="dual-card-title-row">
-            <span class="side-icon buy">🟢</span>
-            <div>
-              <div class="side-title">WHEN TO BUY</div>
-              <div class="side-subtitle">IMMEDIATE 15s BREAKOUT</div>
+            <div class="welcome-prompt-card" onclick="quickFrontAiAsk('Common sense: How do I protect my money if price drops?')">
+              <div class="card-icon">🛡️</div>
+              <div class="card-title">Capital Preservation Rules</div>
+              <div class="card-desc">Disciplined mathematical stop-loss boundaries and risk management.</div>
             </div>
           </div>
-          <div class="dual-price-box">
-            <div class="dual-price-label">Exact Buy Price:</div>
-            <div class="dual-price-val buy-val" id="radarBuyPrice">$145.29</div>
-            <div class="dual-price-timing" id="radarBuyTiming">⏱️ When: BUY NOW (Trigger Active)</div>
-          </div>
-          <div class="dual-card-meta">
-            <div class="meta-item"><span>Entry Order</span><strong>Instant Market Fill</strong></div>
-            <div class="meta-item"><span>AI Conviction</span><strong class="up" id="radarBuyConviction">98.4% Win Score</strong></div>
-          </div>
         </div>
 
-        <!-- 🔴 CARD 2: WHEN TO SELL (EXACT TARGET & EXACT TIME) -->
-        <div class="dual-card sell-side">
-          <div class="dual-card-badge">STEP 2 • EXACT EXIT (SIMULTANEOUS)</div>
-          <div class="dual-card-title-row">
-            <span class="side-icon sell">🔴</span>
-            <div>
-              <div class="side-title">WHEN TO SELL</div>
-              <div class="side-subtitle">TAKE-PROFIT & TIMED EXIT</div>
-            </div>
+        <!-- Chat Messages Thread -->
+        <div class="chat-thread" id="frontAiChatThread" style="display:none;"></div>
+      </div>
+
+      <!-- Sticky Bottom Chat Input Dock (ChatGPT style) -->
+      <footer class="chat-bottom-dock">
+        <div class="dock-inner">
+          <!-- Quick Action Chips Bar -->
+          <div class="dock-quick-chips">
+            <button type="button" class="dock-chip" onclick="quickFrontAiAsk('in which indian share i can get profit if i want to invest for long term')">
+              🇮🇳 Indian Long Term
+            </button>
+            <button type="button" class="dock-chip" onclick="quickFrontAiAsk('Should I buy NVDA right now?')">
+              🟢 NVDA Buy Signal
+            </button>
+            <button type="button" class="dock-chip" onclick="quickFrontAiAsk('Give me exact Buy and Sell prices for Tesla (TSLA)')">
+              ⚡ Tesla Setup
+            </button>
+            <button type="button" class="dock-chip" onclick="quickFrontAiAsk('Which shares are going UP today?')">
+              📈 Market Movers
+            </button>
+            <button type="button" class="dock-chip" onclick="quickFrontAiAsk('which year is today')">
+              📅 Year & Date
+            </button>
           </div>
-          <div class="dual-price-box">
-            <div class="dual-price-label">Exact Sell Target:</div>
-            <div class="dual-price-val sell-val" id="radarSellPrice">$150.36 <span class="gain-badge" id="radarSellGain">(+3.49%)</span></div>
-            <div class="dual-price-timing sell-timing" id="radarSellTiming">⏱️ When: Sell at $150.36 OR in 5m</div>
+
+          <!-- Input Bar -->
+          <div class="dock-input-box">
+            <textarea id="frontAiInput" class="dock-textarea" rows="1" 
+              placeholder="Ask AI Trade Analyzer anything... (e.g. 'Should I buy NVDA?', 'Which Indian shares for long term?', 'When to sell Bitcoin?')"
+              onkeydown="handleChatInputKeyDown(event)"></textarea>
+            <button type="button" id="btnFrontAiSubmit" class="btn-dock-send" onclick="submitFrontAiQuery()" title="Send">
+              <span class="send-arrow">➤</span>
+            </button>
           </div>
-          <div class="dual-card-meta">
-            <div class="meta-item"><span>Stop-Loss Sell</span><strong class="down" id="radarStopLossPrice">$143.10 (-1.51%)</strong></div>
-            <div class="meta-item"><span>Auto-Exit Timer</span><strong class="up countdown-pulse" id="radarCountdownTimer">⏳ 05:00 to Target Exit</strong></div>
+
+          <div class="dock-disclaimer">
+            Quantum Alpha AI • Powered by Google Gemini 3.5 AI & Real-Time Quantitative Telemetry. Verify before trading.
           </div>
         </div>
-
-        <!-- 📸 CARD 3: VISUAL PROOF PICTURE & REASONS -->
-        <div class="dual-card proof-side">
-          <div class="dual-card-badge">STEP 3 • VISUAL EVIDENCE</div>
-          <div class="dual-card-title-row">
-            <span class="side-icon proof">📸</span>
-            <div>
-              <div class="side-title">PROOF PICTURE</div>
-              <div class="side-subtitle">VERIFIED TECHNICAL EVIDENCE</div>
-            </div>
-          </div>
-          
-          <div class="proof-canvas-container" onclick="openFullProofModal()" title="Click to view full high-res proof picture">
-            <canvas id="radarProofCanvas" width="340" height="150"></canvas>
-            <div class="proof-canvas-zoom-pill">🔍 Zoom Proof Picture</div>
-          </div>
-
-          <div class="proof-bullets">
-            <div class="proof-bullet-item"><span class="bullet-dot">1</span><span id="proofBullet1">Golden Cross: 9 EMA crossed above 21 EMA.</span></div>
-            <div class="proof-bullet-item"><span class="bullet-dot">2</span><span id="proofBullet2">Volume Spike: +240% buying sweep vs 20-period avg.</span></div>
-            <div class="proof-bullet-item"><span class="bullet-dot">3</span><span id="proofBullet3">Target Reason: 1.618 Fib extension resistance.</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- BOTTOM ACTION BAR: 1-CLICK DUAL EXECUTION -->
-      <div class="dual-radar-footer">
-        <div class="footer-callout">
-          <span class="callout-icon">⚡</span>
-          <div>
-            <strong>Simultaneous Order Execution:</strong>
-            <span id="radarFooterDesc">Enters BUY at $145.29 and simultaneously arms the auto-SELL at $150.36!</span>
-          </div>
-        </div>
-        <button type="button" class="btn-dual-execute-now" id="btnDualExecuteNow" onclick="executeDualRadarTrade()">
-          🚀 1-CLICK: BUY NOW & AUTO-SELL AT TARGET
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Backward-compatible hidden container for legacy references -->
-  <div id="liveSignalAlertBar" style="display:none;"></div>
-
-  <!-- Global Portfolio Ribbon -->
-  <div class="portfolio-ribbon">
-    <div class="ribbon-metrics num">
-      <div class="ribbon-item">
-        <span class="ribbon-label">Total Portfolio NAV</span>
-        <span class="ribbon-val" id="ribbonNav">$0.00</span>
-      </div>
-      <div class="ribbon-item">
-        <span class="ribbon-label">Available Margin Cash</span>
-        <span class="ribbon-val" id="ribbonCash" style="color:#60a5fa;">$0.00</span>
-      </div>
-      <div class="ribbon-item">
-        <span class="ribbon-label">Active Capital Deployed</span>
-        <span class="ribbon-val" id="ribbonInvested">$0.00</span>
-      </div>
-      <div class="ribbon-item">
-        <span class="ribbon-label">Live Floating P&L</span>
-        <span class="ribbon-val" id="ribbonFloatingPnl">+$0.00</span>
-      </div>
-      <div class="ribbon-item">
-        <span class="ribbon-label">Active Positions</span>
-        <span class="ribbon-val" id="ribbonOpenCount">0 Open</span>
-      </div>
-    </div>
-
-    <div class="ribbon-actions">
-      <button id="btnOpenBrokerModal" class="btn-sm">Connect Broker API</button>
-      <button id="btnResetCapital" class="btn-sm">Reset Sandbox</button>
-      <button id="btnEmergencyLiquidate" class="btn-danger-sm">Liquidate All Open</button>
-    </div>
+      </footer>
+    </main>
   </div>
 
-  <!-- Main Trading & Analysis Console Grid (65% / 35%) -->
-  <main class="main-layout">
-
-    <!-- Left / Center: Interactive Chart & Deep AI Diagnosis -->
-    <div class="analysis-main">
-
-      <!-- Asset Summary & Chart Card -->
-      <div class="chart-card">
-        <div class="asset-summary-bar">
-          <div class="asset-title-group">
-            <div class="asset-heading-row">
-              <span class="asset-symbol-text" id="assetSymbol">NVDA</span>
-              <span class="asset-tag tag-market" id="assetMarket">US • USD</span>
-              <span class="asset-tag tag-bull" id="assetTrendTag">BULLISH</span>
-            </div>
-            <div class="asset-company-name" id="assetCompanyName">NVIDIA Corporation • Semiconductors / AI</div>
-          </div>
-
-          <div class="asset-price-box">
-            <div class="asset-live-price num" id="assetLivePrice">$0.00</div>
-            <div class="asset-live-delta num" id="assetLiveDelta">+0.00 (+0.00%)</div>
-          </div>
-        </div>
-
-        <!-- High-Precision Timeframe Bar with Seconds and Minutes -->
-        <div class="timeframe-bar">
-          <div class="tf-buttons">
-            <button class="tf-btn" data-tf="5s">5S</button>
-            <button class="tf-btn" data-tf="15s">15S</button>
-            <button class="tf-btn" data-tf="30s">30S</button>
-            <button class="tf-btn" data-tf="1m">1M</button>
-            <button class="tf-btn" data-tf="5m">5M</button>
-            <button class="tf-btn active" data-tf="15m">15M</button>
-            <button class="tf-btn" data-tf="1h">1H</button>
-            <button class="tf-btn" data-tf="1d">1D</button>
-            <button class="tf-btn" data-tf="1w">1W</button>
-          </div>
-
-          <div class="range-slider-wrap num">
-            <span>Day Range:</span>
-            <span id="assetDayLow">$0.00</span>
-            <span style="color:var(--text-faint);">───●───</span>
-            <span id="assetDayHigh">$0.00</span>
-            <span style="margin-left:14px;">Vol: <strong id="assetVolume">0</strong></span>
-          </div>
-        </div>
-
-        <!-- Live TradingView OHLC & Spread Status Bar -->
-        <div class="chart-legend-strip num" id="chartLegendStrip">
-          <div class="legend-asset-info">
-            <span class="legend-sym" id="legSym">NVDA</span>
-            <span class="legend-tf-badge" id="legTf">15M</span>
-            <span class="legend-feed">● LIVE DMA</span>
-          </div>
-          <div class="legend-ohlc-metrics">
-            <span>O: <strong id="legOpen">0.00</strong></span>
-            <span>H: <strong id="legHigh">0.00</strong></span>
-            <span>L: <strong id="legLow">0.00</strong></span>
-            <span>C: <strong id="legClose">0.00</strong></span>
-            <span id="legChange" class="legend-chg up">+0.00 (+0.00%)</span>
-            <span class="legend-spread">Spread: <strong id="legSpread">$0.02</strong></span>
-          </div>
-        </div>
-
-        <!-- Official TradingView Lightweight Chart Container -->
-        <div class="tv-chart-viewport" id="tvChartContainer"></div>
-      </div>
-
-      <!-- Institutional Level-2 Market Depth & Live Tape Panel (Hidden to remove clutter) -->
-      <div class="depth-tape-card" style="display:none !important;">
-        <div class="depth-tape-header">
-          <div class="depth-tab-group">
-            <button type="button" class="depth-tab-btn active" id="tabOrderBook" onclick="switchDepthTab('book')">
-              LEVEL-2 MARKET DEPTH (ORDER BOOK)
-            </button>
-            <button type="button" class="depth-tab-btn" id="tabTimeSales" onclick="switchDepthTab('tape')">
-              TIME & SALES (LIVE TAPE)
-            </button>
-          </div>
-          <div class="depth-ratio-pill num" id="depthPressurePill">
-            <span style="color:var(--bullish);" id="depthBidPressure">BIDS 54%</span>
-            <span style="color:var(--text-faint);">|</span>
-            <span style="color:var(--bearish);" id="depthAskPressure">46% ASKS</span>
-          </div>
-        </div>
-
-        <!-- Tab 1: 5-Level Bid/Ask Depth of Market -->
-        <div id="depthOrderBookView" class="orderbook-grid">
-          <!-- Bids Column (Green) -->
-          <div class="ob-side ob-bids">
-            <div class="ob-col-head">
-              <span>BUY ORDERS</span>
-              <span style="text-align:right;">BID SIZE</span>
-              <span style="text-align:right;">BID PRICE</span>
-            </div>
-            <div id="obBidsRows" class="ob-rows num">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-
-          <!-- Spread Divider Bar -->
-          <div class="ob-spread-divider num" id="obSpreadDivider">
-            <span>MARKET SPREAD: <strong id="obSpreadVal">$0.02</strong> (<span id="obSpreadPct">0.01%</span>)</span>
-            <span style="color:var(--text-faint);">INSTITUTIONAL DIRECT MATCHED</span>
-          </div>
-
-          <!-- Asks Column (Red) -->
-          <div class="ob-side ob-asks">
-            <div class="ob-col-head">
-              <span>ASK PRICE</span>
-              <span style="text-align:right;">ASK SIZE</span>
-              <span style="text-align:right;">TOTAL CUM</span>
-            </div>
-            <div id="obAsksRows" class="ob-rows num">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 2: Real-time Time & Sales Tape -->
-        <div id="depthTimeSalesView" class="tape-container" style="display:none;">
-          <div class="tape-head">
-            <span>TIME (UTC)</span>
-            <span style="text-align:right;">PRICE</span>
-            <span style="text-align:right;">VOLUME / LOTS</span>
-            <span style="text-align:right;">SIDE</span>
-          </div>
-          <div id="tapeRowsContainer" class="tape-rows num">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-      </div>
-
-      <!-- AI Quantitative Intelligence & Plain-English Report (Hidden to remove clutter) -->
-      <div class="ai-report-card" style="display:none !important;">
-        <div class="report-header">
-          <div class="report-title">
-            <span>AI QUANTITATIVE DIAGNOSTIC VERDICT</span>
-          </div>
-          <button type="button" class="btn-sm" onclick="openAiChatWithQuery('Should I buy or sell right now?')">
-            Ask AI To Elaborate
-          </button>
-        </div>
-
-        <!-- Clear Plain-English Verdict -->
-        <div class="verdict-banner">
-          <div class="verdict-top-row">
-            <div class="verdict-recommendation" id="verdictRecommendation">
-              BULLISH — Strong Upward Momentum
-            </div>
-            <div class="verdict-confidence num" id="verdictConfidence">
-              AI Confidence: 94%
-            </div>
-          </div>
-          <div class="verdict-narrative" id="verdictNarrative">
-            Analyzing institutional order flow, moving average stacks, and volume delta...
-          </div>
-        </div>
-
-        <!-- Technical Indicator Matrix -->
-        <div class="indicators-row num">
-          <div class="indicator-card">
-            <div class="ind-label">RSI (14-Period)</div>
-            <div class="ind-value" id="valRsi">52.4</div>
-            <div class="ind-status" id="statRsi">Neutral Range</div>
-          </div>
-          <div class="indicator-card">
-            <div class="ind-label">20 & 50 EMA Stack</div>
-            <div class="ind-value" id="valEma">$0.00</div>
-            <div class="ind-status" id="statEma">Bullish Continuation</div>
-          </div>
-          <div class="indicator-card">
-            <div class="ind-label">MACD Momentum</div>
-            <div class="ind-value" id="valMacd">+0.65</div>
-            <div class="ind-status" id="statMacd">Positive Histogram</div>
-          </div>
-          <div class="indicator-card">
-            <div class="ind-label">Target / Stop-Loss</div>
-            <div class="ind-value up" id="valTargetSl">$0.00</div>
-            <div class="ind-status" id="statTargetSl">SL: $0.00</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Real-Time Asset Tracker & Live Signal Alerts Radar (Hidden to remove clutter) -->
-      <div class="tracker-card" style="display:none !important;">
-        <div class="tracker-header">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="tracker-radar-pulse"></span>
-            <span style="font-size:12px; font-weight:700; color:#fff; text-transform:uppercase;">
-              🎯 LIVE ASSET TRACKER & BUY/SELL SIGNAL ALERTS
-            </span>
-          </div>
-          <span id="trackerLiveStatusBadge" class="asset-tag tag-bull">AI RADAR LIVE (1.5s)</span>
-        </div>
-
-        <div class="tracker-body">
-          <div class="tracker-controls-grid">
-            <div>
-              <label class="tracker-label">Track Any Asset / Share:</label>
-              <div style="display:flex; gap:6px;">
-                <input type="text" id="trackAssetInput" class="global-search-input" placeholder="e.g. NVDA, AAPL, RELIANCE.NS, BTC-USD..." value="NVDA">
-                <button type="button" class="btn-sm" onclick="setTrackerToCurrentSymbol()" title="Use active symbol">
-                  Current
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="tracker-label">Trigger Alert Condition:</label>
-              <select id="trackTriggerMode" class="styled-select" onchange="onTrackerModeChange()">
-                <option value="AI_SIGNALS">🚨 AI Algorithmic BUY / SELL Signal (Recommended)</option>
-                <option value="PRICE_ABOVE">📈 Price Crosses Above Target</option>
-                <option value="PRICE_BELOW">📉 Price Crosses Below Target</option>
-                <option value="MOMENTUM_BREAKOUT">⚡ High-Velocity Momentum Breakout</option>
-              </select>
-            </div>
-
-            <div id="targetPriceInputWrap" style="display:none;">
-              <label class="tracker-label">Target Trigger Price:</label>
-              <input type="number" id="trackTargetPrice" class="global-search-input num" placeholder="Target 0.00" step="0.01">
-            </div>
-          </div>
-
-          <div class="tracker-toggles-row">
-            <div class="tracker-checkboxes">
-              <label class="tracker-check-item">
-                <input type="checkbox" id="chkAudioAlert" checked>
-                <span>🔊 Audible Chime</span>
-              </label>
-              <label class="tracker-check-item">
-                <input type="checkbox" id="chkPushNotification" checked onchange="requestPushPermission()">
-                <span>🔔 Desktop / Phone Notification</span>
-              </label>
-              <label class="tracker-check-item">
-                <input type="checkbox" id="chkAutoQuickPrompt" checked>
-                <span>⚡ 1-Click Buy/Sell Prompt</span>
-              </label>
-            </div>
-
-            <div style="display:flex; gap:8px;">
-              <button type="button" class="btn-sm" onclick="triggerTestAlertNow()" title="Verify audio chime and alert notification">
-                🔔 Test Sound & Alert
-              </button>
-              <button type="button" id="btnStartTracking" class="btn-execute-order" style="width:auto; padding:6px 18px;" onclick="activateTrackerNow()">
-                🎯 START 24/7 LIVE TRACKING
-              </button>
-            </div>
-          </div>
-
-          <!-- Active Live Telemetry Status Stream -->
-          <div class="active-tracker-status-strip" id="activeTrackerStatusStrip">
-            <div class="active-tracker-left">
-              <span class="radar-beacon"></span>
-              <span>Actively Tracking: <strong id="lblActiveTrackedSymbol" style="color:#fff;">NVDA</strong> at <strong class="num" id="lblActiveTrackedPrice" style="color:var(--bullish);">$141.25</strong></span>
-              <span id="lblActiveTrackedSignal" class="signal-badge buy">STRONG BUY (94%)</span>
-              <span id="lblActiveTrackedTarget" style="color:var(--text-muted); font-size:11px;">Target: $146.50 | SL: $138.10</span>
-            </div>
-            <div class="active-tracker-right">
-              <span style="font-size:10px; color:var(--text-faint);">Next auto-check in <strong class="num" style="color:#fff;">1.5s</strong></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Interactive AI Copilot Console (Hidden to remove clutter) -->
-      <div class="ai-copilot-card" style="display:none !important;">
-        <div class="copilot-header">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:14px;">🧠</span>
-            <span style="font-size:12px; font-weight:700; color:#fff; text-transform:uppercase;">
-              ASK QUANTUM AI COPILOT ANYTHING
-            </span>
-            <span class="asset-tag tag-bull" style="font-size:9px;">ALIVE & SENSITIVE</span>
-          </div>
-          <button type="button" class="btn-sm" onclick="toggleAiChatDrawer(true)">
-            Open Expanded Drawer ↗
-          </button>
-        </div>
-
-        <div class="copilot-body">
-          <div class="copilot-input-bar">
-            <input type="text" id="inlineAiPromptInput" class="copilot-input" placeholder="Ask anything: e.g. 'Should I buy NVDA right now?', 'Calculate profit on $2000', 'How many minutes to hold?'..." onkeydown="if(event.key==='Enter') submitInlineAiPrompt()">
-            <button type="button" id="btnSubmitInlineAi" class="btn-copilot-submit" onclick="submitInlineAiPrompt()">
-              Ask AI Copilot
-            </button>
-          </div>
-
-          <!-- Quick Question Chips -->
-          <div class="copilot-chips">
-            <button type="button" class="copilot-chip" onclick="quickAsk('Should I buy or sell right now?')">
-              ⚡ Should I BUY or SELL now?
-            </button>
-            <button type="button" class="copilot-chip" onclick="quickAsk('How many minutes should I hold and when will you withdraw?')">
-              ⏱️ When to withdraw & hold duration?
-            </button>
-            <button type="button" class="copilot-chip" onclick="quickAsk('If I invest $2000, what is my profit and risk?')">
-              💰 Calculate profit on $2,000
-            </button>
-            <button type="button" class="copilot-chip" onclick="quickAsk('Which share is going UP and which is going DOWN?')">
-              📈 Which share is going UP vs DOWN?
-            </button>
-            <button type="button" class="copilot-chip" onclick="quickAsk('Who is the CEO and what is the company business model?')">
-              🏢 Company CEO & Fundamentals
-            </button>
-          </div>
-
-          <!-- Inline AI Answer Container -->
-          <div id="inlineAiAnswerBox" class="copilot-answer-box" style="display:none;">
-            <div class="copilot-answer-head">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span class="pulse-dot"></span>
-                <span style="font-weight:700; color:#fff; font-size:11px;">QUANTUM COGNITIVE INTELLIGENCE VERDICT</span>
-              </div>
-              <button type="button" onclick="closeInlineAiAnswer()" style="background:none; border:none; color:var(--text-faint); cursor:pointer;">✕</button>
-            </div>
-            <div id="inlineAiAnswerContent" class="copilot-answer-content">
-              <!-- Dynamically populated with beautifully formatted HTML tables, lists, and badges -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Market Screener Table (Hidden to remove clutter) -->
-      <div class="screener-card" style="display:none !important;">
-        <div class="screener-header">
-          <span style="font-size:12px; font-weight:700; color:#fff; text-transform:uppercase;">
-            Market Universe & Real-Time Movers
-          </span>
-          <span style="font-size:10px; color:var(--text-faint);" id="screenerCountBadge">Showing Active Assets</span>
-        </div>
-
-        <div style="overflow-x:auto;">
-          <table class="screener-table">
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Company / Asset</th>
-                <th>Sector</th>
-                <th style="text-align:right;">Price</th>
-                <th style="text-align:right;">24h Change</th>
-                <th style="text-align:right;">RSI</th>
-                <th>Signal</th>
-                <th>AI Verdict</th>
-              </tr>
-            </thead>
-            <tbody id="screenerTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Right: Automated Order Desk, Active Timers & Audit Desk -->
-    <div class="execution-sidebar">
-
-      <!-- Order Execution & Timer Configuration Dock (Hidden to remove clutter) -->
-      <div class="order-box" id="executionOrderBox" style="display:none !important;">
-        <div class="box-title">
-          <span>AUTONOMOUS EXECUTION DOCK</span>
-          <span style="font-size:10px; color:var(--text-faint);">Exact Timer Exit</span>
-        </div>
-
-        <!-- Order Type Selection -->
-        <div class="order-type-tabs">
-          <button type="button" class="order-type-btn active" data-type="MARKET">MARKET (INSTANT)</button>
-          <button type="button" class="order-type-btn" data-type="LIMIT">LIMIT ORDER</button>
-          <button type="button" class="order-type-btn" data-type="STOP">STOP-LIMIT</button>
-        </div>
-
-        <!-- 1. Select Holding Horizon / Duration in Seconds & Minutes -->
-        <div>
-          <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">
-            1. Select Duration / Exit Schedule:
-          </label>
-          <div class="duration-chips-grid" style="margin-top:4px;">
-            <button type="button" class="dur-chip" data-sec="15">15s</button>
-            <button type="button" class="dur-chip" data-sec="30">30s</button>
-            <button type="button" class="dur-chip" data-sec="60">1m</button>
-            <button type="button" class="dur-chip selected" data-sec="300">5m</button>
-            <button type="button" class="dur-chip" data-sec="900">15m</button>
-            <button type="button" class="dur-chip" data-sec="1800">30m</button>
-            <button type="button" class="dur-chip" data-sec="3600">1h</button>
-            <button type="button" class="dur-chip" data-sec="custom">Custom</button>
-          </div>
-
-          <div class="custom-duration-row" id="customDurationRow" style="display:none;">
-            <input type="number" id="customDurValue" class="custom-dur-input num" value="45" min="1" max="1000">
-            <select id="customDurUnit" class="custom-dur-select">
-              <option value="seconds">Seconds</option>
-              <option value="minutes">Minutes</option>
-              <option value="hours">Hours</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 2. Position Direction (Long / Short) -->
-        <div>
-          <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">
-            2. Anticipated Direction:
-          </label>
-          <div class="side-switch" style="margin-top:4px;">
-            <button type="button" class="side-choice-btn active buy" id="btnSideBuy">BUY (Going UP)</button>
-            <button type="button" class="side-choice-btn sell" id="btnSideSell">SELL (Going DOWN)</button>
-          </div>
-        </div>
-
-        <!-- 3. Capital Allocation & Margin Leverage -->
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">
-              3. Investment Capital:
-            </label>
-            <span style="font-size:10px; color:var(--text-faint);">
-              Avail: <strong class="num" id="deskAvailMargin" style="color:#fff;">$0.00</strong>
-            </span>
-          </div>
-
-          <div class="capital-input-wrap" style="margin-top:4px;">
-            <span class="capital-prefix num" id="capitalCurrencyPrefix">$</span>
-            <input type="number" id="capitalAmountInput" class="capital-input num" value="2500" min="10" step="50">
-          </div>
-
-          <div class="quick-pct-row">
-            <button type="button" class="pct-chip" data-pct="10">10%</button>
-            <button type="button" class="pct-chip" data-pct="25">25%</button>
-            <button type="button" class="pct-chip" data-pct="50">50%</button>
-            <button type="button" class="pct-chip" data-pct="100">Max</button>
-          </div>
-        </div>
-
-        <!-- Leverage Selector -->
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">
-              Margin Leverage:
-            </label>
-            <span style="font-size:10px; color:var(--accent-cyan);" id="deskEffectivePower">Effective Power: $2,500</span>
-          </div>
-          <div class="leverage-chips-grid" style="margin-top:4px;">
-            <button type="button" class="lev-chip active" data-lev="1">1x Spot</button>
-            <button type="button" class="lev-chip" data-lev="2">2x Margin</button>
-            <button type="button" class="lev-chip" data-lev="5">5x Leverage</button>
-            <button type="button" class="lev-chip" data-lev="10">10x DMA</button>
-          </div>
-        </div>
-
-        <!-- 4. Pre-Flight Risk Safeguard Breakdown -->
-        <div class="preflight-box num" id="preflightBox">
-          <div class="preflight-row">
-            <span class="preflight-label">Execution Target:</span>
-            <span class="preflight-val up" id="pfTargetPrice">$0.00 (+0.00)</span>
-          </div>
-          <div class="preflight-row">
-            <span class="preflight-label">Stop-Loss Limit:</span>
-            <span class="preflight-val down" id="pfStopLossPrice">$0.00 (-0.00)</span>
-          </div>
-          <div class="preflight-row">
-            <span class="preflight-label">Risk-to-Reward:</span>
-            <span class="preflight-val" id="pfRiskReward">2.4 : 1</span>
-          </div>
-          <div class="preflight-row">
-            <span class="preflight-label">Auto-Liquidation:</span>
-            <span class="preflight-val" style="color:#60a5fa;" id="pfDurationText">In 5 Minutes</span>
-          </div>
-          <div class="preflight-row">
-            <span class="preflight-label">Execution Route:</span>
-            <span class="preflight-val" style="color:var(--accent-cyan);" id="pfRouteText">FIX 4.4 DMA ULTRA</span>
-          </div>
-          <div class="preflight-row">
-            <span class="preflight-label">Est. Slippage / Spread:</span>
-            <span class="preflight-val num" id="pfSlippageText">0.002% ($0.02)</span>
-          </div>
-        </div>
-
-        <!-- Validation Alert Banner (if error) -->
-        <div id="orderErrorBanner" style="display:none; background:var(--bearish-bg); border:1px solid var(--bearish-border); color:var(--bearish); padding:8px 10px; border-radius:4px; font-size:11px;"></div>
-
-        <!-- Execute Button -->
-        <button type="button" id="btnExecuteTradeOrder" class="btn-execute-order">
-          <span>⚡ EXECUTE AI AUTO-TRADE & ARM TIMER</span>
-        </button>
-      </div>
-
-      <!-- Active Running Trades Desk with Live Countdown Timers -->
-      <div class="positions-card" id="activeTradesDeckCard">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:12px; font-weight:700; color:#fff; text-transform:uppercase;">
-            ACTIVE RUNNING TRADES
-          </span>
-          <span class="asset-tag tag-market num" id="activeTradesCountBadge">0 Active</span>
-        </div>
-
-        <div id="activePositionsContainer" style="display:flex; flex-direction:column; gap:8px;">
-          <!-- Dynamically populated with live timers -->
-        </div>
-      </div>
-
-      <!-- Execution Audit Ledger -->
-      <div class="positions-card">
-        <span style="font-size:12px; font-weight:700; color:#fff; text-transform:uppercase;">
-          EXECUTION AUDIT LEDGER
-        </span>
-
-        <div style="overflow-x:auto; max-height:200px;">
-          <table class="screener-table">
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Side</th>
-                <th>Capital</th>
-                <th>Realized P&L</th>
-                <th>Reason</th>
-              </tr>
-            </thead>
-            <tbody id="auditLedgerBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- Interactive Conversational AI Market Analyst Drawer -->
-  <aside class="ai-chat-drawer" id="aiChatDrawer">
-    <div class="ai-chat-header">
-      <div>
-        <div style="font-weight:700; color:#fff; font-size:13px; display:flex; align-items:center; gap:6px;">
-          <span>AI MARKET ANALYST</span>
-          <span class="asset-tag tag-bull" style="font-size:9px;">LIVE TELEMETRY</span>
-        </div>
-        <div style="font-size:10px; color:var(--text-faint); margin-top:2px;">
-          Consulting on: <strong id="chatActiveAssetLabel" style="color:#fff;">NVDA</strong>
-        </div>
-      </div>
-      <button type="button" id="btnCloseAiChat" onclick="toggleAiChatDrawer(false)" style="background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:18px;">✕</button>
-    </div>
-
-    <div class="ai-chat-body" id="aiChatMessages">
-      <div class="chat-bubble ai">
-        Hello! I am your <strong>Live Quantitative Market Analyst</strong>. I monitor real-time order books, RSI, moving average bands, and momentum for all global assets. Ask me anything about this stock, when to enter, when to exit, or whether to Buy or Sell right now.
-      </div>
-    </div>
-
-    <!-- Quick Prompt Pills -->
-    <div class="chat-quick-pills">
-      <button type="button" class="quick-pill" onclick="sendAiChatQuickPrompt('Should I buy or sell right now?')">
-        🎯 Should I Buy or Sell right now?
-      </button>
-      <button type="button" class="quick-pill" onclick="sendAiChatQuickPrompt('What is the best duration in seconds/minutes to hold this?')">
-        ⏱️ Best holding duration?
-      </button>
-      <button type="button" class="quick-pill" onclick="sendAiChatQuickPrompt('What are the exact target price and stop-loss levels?')">
-        🎯 Target & Stop-Loss?
-      </button>
-      <button type="button" class="quick-pill" onclick="sendAiChatQuickPrompt('Explain why this stock is moving up or down.')">
-        📊 Why is it moving?
-      </button>
-    </div>
-
-    <div class="ai-chat-input-bar">
-      <input type="text" id="aiChatInput" class="ai-text-input" placeholder="Ask about this stock (e.g. Should I buy now?)...">
-      <button type="button" id="btnSendAiChat" class="btn-execute-order" style="width:auto; padding:8px 14px;">
-        Ask AI
-      </button>
-    </div>
-  </aside>
-
-  <!-- Floating Always-Visible AI Analyst Shortcut -->
-  <button type="button" class="floating-ai-trigger" onclick="toggleAiChatDrawer()" title="Open Conversational AI Market Analyst">
-    <span class="pulse-indicator"></span>
-    <span>💬 AI ANALYST (LIVE)</span>
-  </button>
-
-  <!-- Mobile Phone & Global Access Modal with QR Code -->
-  <div class="modal-layer" id="phoneConnectModal">
-    <div class="modal-box" style="max-width: 480px;">
-      <div class="modal-head">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span>📱 PERMANENT LIVE ACCESS (PHONE & PC)</span>
-        </div>
-        <button type="button" onclick="closePhoneModal()" style="background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:18px;">✕</button>
-      </div>
-      <div class="modal-body" style="text-align:center; padding:18px 16px;">
-        <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
-          Access your institutional terminal permanently from any iPhone, Android, tablet, or external PC across the globe.
-        </div>
-
-        <!-- Mode Toggle Tabs -->
-        <div style="display:flex; gap:6px; margin-bottom:14px; background:var(--bg-surface-elevated); padding:3px; border-radius:6px; border:1px solid var(--border-subtle);">
-          <button type="button" id="tabModePublic" class="btn-sm" style="flex:1; background:rgba(0,230,118,0.15); color:var(--bullish); border-color:var(--bullish);" onclick="switchPhoneAccessMode('public')">
-            🌍 Global Link (Worldwide 4G/5G)
-          </button>
-          <button type="button" id="tabModeWifi" class="btn-sm" style="flex:1;" onclick="switchPhoneAccessMode('wifi')">
-            🏠 Local Wi-Fi (Fast Direct LAN)
-          </button>
-        </div>
-
-        <!-- QR Code Canvas / Container -->
-        <div id="phoneQrContainer" style="background:#fff; padding:12px; border-radius:10px; display:inline-block; margin-bottom:12px; box-shadow:0 8px 24px rgba(0,0,0,0.5);"></div>
-
-        <!-- URL Display Box -->
-        <div style="background:var(--bg-surface-elevated); padding:10px 12px; border-radius:6px; border:1px solid var(--border-medium); margin-bottom:10px; text-align:left;">
-          <div id="phoneAccessLabel" style="font-size:10px; color:var(--text-faint); text-transform:uppercase; margin-bottom:4px;">
-            Worldwide HTTPS URL:
-          </div>
-          <div id="phoneAccessUrl" class="num" style="font-size:13px; font-weight:700; color:var(--bullish); word-break:break-all;">
-            https://nexus-trader-live.loca.lt
-          </div>
-          <div id="tunnelPasswordBox" style="margin-top:6px; font-size:11px; color:#ffd700; background:rgba(255,215,0,0.08); padding:6px 8px; border-radius:4px; border:1px solid rgba(255,215,0,0.25);">
-            🔑 <strong>Localtunnel Password:</strong> <code style="font-size:12px; font-weight:700; color:#fff;" id="tunnelPasswordVal">27.6.200.92</code>
-            <span style="font-size:10px; color:var(--text-faint); display:block; margin-top:2px;">(Enter this password when opening on your phone for the first time)</span>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:8px; justify-content:center;">
-          <button type="button" class="btn-execute-order" onclick="copyPhoneUrl()" style="width:auto; padding:8px 18px;">
-            📋 Copy Active Link
-          </button>
-          <a id="phoneDirectLink" href="https://nexus-trader-live.loca.lt" target="_blank" class="btn-sm" style="display:inline-flex; align-items:center; text-decoration:none; padding:8px 14px;">
-            Open in Tab ↗
-          </a>
-        </div>
-
-        <div style="margin-top:14px; font-size:11px; color:var(--text-faint); line-height:1.5; text-align:left; background:rgba(255,255,255,0.02); padding:10px 12px; border-radius:6px;">
-          <strong>Quick Setup:</strong><br>
-          • <strong>On any phone or device:</strong> Scan the QR code or click Copy Active Link.<br>
-          • <strong>Full Mobile Control:</strong> Charting down to 5 seconds, AI Analyst conversation, Level-2 depth, and automatic timed trade execution are 100% functional on mobile touchscreens.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mobile Bottom Navigation Bar -->
-  <nav class="mobile-bottom-bar" id="mobileBottomBar">
-    <button type="button" class="mob-nav-item active" onclick="mobileSwitchTab('chart')">
-      <span class="mob-nav-icon">📈</span>
-      <span class="mob-nav-label">Chart</span>
-    </button>
-    <button type="button" class="mob-nav-item" onclick="mobileSwitchTab('depth')">
-      <span class="mob-nav-icon">⚡</span>
-      <span class="mob-nav-label">Depth</span>
-    </button>
-    <button type="button" class="mob-nav-item" onclick="mobileSwitchTab('trade')">
-      <span class="mob-nav-icon">🎯</span>
-      <span class="mob-nav-label">Trade</span>
-    </button>
-    <button type="button" class="mob-nav-item" onclick="mobileSwitchTab('orders')">
-      <span class="mob-nav-icon">📊</span>
-      <span class="mob-nav-label">Positions</span>
-    </button>
-    <button type="button" class="mob-nav-item" onclick="mobileSwitchTab('ai')">
-      <span class="mob-nav-icon">🧠</span>
-      <span class="mob-nav-label">AI Copilot</span>
-    </button>
-    <button type="button" class="mob-nav-item" onclick="mobileSwitchTab('phone')">
-      <span class="mob-nav-icon">📱</span>
-      <span class="mob-nav-label">Phone</span>
-    </button>
-  </nav>
-
-  <!-- Broker Gateway Configuration Modal -->
-  <div class="modal-layer" id="brokerConfigModal">
-    <div class="modal-box">
-      <div class="modal-head">
-        <span>Broker Custody & Gateway Configuration</span>
-        <button type="button" id="btnCloseBrokerModal" style="background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:16px;">✕</button>
-      </div>
-      <div class="modal-body">
-        <div style="font-size:11px; color:var(--text-muted); line-height:1.5;">
-          Your real money stays safe in your regulated brokerage account. The AI communicates via authenticated broker APIs to open and automatically withdraw your trades.
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">Select Broker Provider:</label>
-          <select id="modalBrokerProvider" class="styled-select" style="background:var(--bg-surface-elevated); padding:6px; border:1px solid var(--border-subtle); border-radius:4px; width:100%;">
-            <option value="SANDBOX">Institutional Sandbox (Default - Safe Live Quotes)</option>
-            <option value="ALPACA">Alpaca Markets (US Stocks - USD)</option>
-            <option value="ZERODHA">Zerodha Kite Connect (Indian NSE - INR)</option>
-            <option value="ANGEL_ONE">Angel One SmartAPI (Indian NSE - INR)</option>
-          </select>
-        </div>
-
-        <div id="modalAlpacaInputs">
-          <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
-            <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">Alpaca API Key ID:</label>
-            <input type="text" id="modalAlpacaKey" class="global-search-input" style="background:var(--bg-surface-elevated); padding:6px; border:1px solid var(--border-subtle); border-radius:4px;" placeholder="PK...">
-          </div>
-          <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
-            <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">Alpaca Secret Key:</label>
-            <input type="password" id="modalAlpacaSecret" class="global-search-input" style="background:var(--bg-surface-elevated); padding:6px; border:1px solid var(--border-subtle); border-radius:4px;" placeholder="Secret Key...">
-          </div>
-        </div>
-
-        <div id="modalIndianInputs" style="display:none;">
-          <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
-            <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">Broker API Key:</label>
-            <input type="text" id="modalIndianKey" class="global-search-input" style="background:var(--bg-surface-elevated); padding:6px; border:1px solid var(--border-subtle); border-radius:4px;" placeholder="Broker API Key...">
-          </div>
-          <div style="display:flex; flex-direction:column; gap:4px; margin-top:8px;">
-            <label style="font-size:10px; font-weight:700; color:var(--text-faint); text-transform:uppercase;">Access Token / Session Secret:</label>
-            <input type="password" id="modalIndianToken" class="global-search-input" style="background:var(--bg-surface-elevated); padding:6px; border:1px solid var(--border-subtle); border-radius:4px;" placeholder="Access Token...">
-          </div>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button type="button" class="btn-sm" id="btnCancelBrokerModal">Cancel</button>
-        <button type="button" class="btn-execute-order" id="btnSaveBrokerSettings" style="width:auto; padding:6px 14px;">
-          Authenticate & Connect
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- High-Resolution Proof Picture Modal -->
-  <div id="fullProofModal" class="full-proof-modal" style="display:none;" onclick="if(event.target===this)closeFullProofModal()">
+  <!-- Technical Evidence Modal Dialog -->
+  <div class="full-proof-overlay" id="fullProofModal" style="display:none;">
     <div class="full-proof-dialog">
       <div class="proof-dialog-head">
         <div>
           <span class="proof-shield-badge">🛡️ OFFICIAL AI TECHNICAL EVIDENCE SNAPSHOT</span>
-          <h2 id="modalProofAsset">NVDA • Visual Trade Proof Blueprint</h2>
+          <h2 id="modalProofAsset">Visual Trade Proof Blueprint</h2>
         </div>
         <button type="button" class="btn-proof-dialog-close" onclick="closeFullProofModal()">✕</button>
       </div>
@@ -1113,7 +303,7 @@
         <div class="proof-dialog-details">
           <div class="proof-detail-card">
             <h4>🟢 EXACT ENTRY RULE (BUY)</h4>
-            <p id="modalProofBuyRule">Triggered at instant breakout. 9 EMA crossed over 21 EMA with 72% bid liquidity support. Enter at current price immediately.</p>
+            <p id="modalProofBuyRule">Triggered at instant breakout. 9 EMA crossed over 21 EMA. Enter at current price immediately.</p>
           </div>
           <div class="proof-detail-card">
             <h4>🔴 EXACT EXIT RULE (SELL)</h4>
@@ -1121,19 +311,152 @@
           </div>
           <div class="proof-detail-card">
             <h4>🛑 RISK MANAGEMENT RULE</h4>
-            <p id="modalProofStopRule">Strict stop-loss armed 1.5% below entry to eliminate tail risk. 2.31x Profit-to-Risk ratio maintained.</p>
+            <p id="modalProofStopRule">Strict stop-loss armed 1.5% below entry to eliminate tail risk.</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Notification Toast Rack -->
+  <!-- Notification Toast Container -->
   <div id="toastBox"></div>
 
-  <script src="client_engine.js?v=4.2"></script>
-  <script src="app.js?v=4.2"></script>
-</body>
-</html>
+  <!-- Hidden Legacy DOM Elements (Prevents null pointer errors in background tickers/scripts) -->
+  <div id="legacyElements" style="display:none !important;" aria-hidden="true">
+    <input type="text" id="globalSearchInput" />
+    <div id="searchResultsMenu"></div>
+    <div id="tvChartContainer"></div>
+    <div id="customDurationRow"></div>
+    <input type="text" id="customDurValue" />
+    <div id="customDurUnit"></div>
+    <button type="button" id="btnSideBuy"></button>
+    <button type="button" id="btnSideSell"></button>
+    <select id="routingSelect"></select>
+    <input type="text" id="capitalAmountInput" />
+    <button type="button" id="btnExecuteTradeOrder"></button>
+    <button type="button" id="btnCloseAiChat"></button>
+    <button type="button" id="btnSendAiChat"></button>
+    <input type="text" id="aiChatInput" />
+    <button type="button" id="btnEmergencyLiquidate"></button>
+    <button type="button" id="btnResetCapital"></button>
+    <button type="button" id="btnOpenBrokerModal"></button>
+    <button type="button" id="btnCloseBrokerModal"></button>
+    <button type="button" id="btnCancelBrokerModal"></button>
+    <div id="brokerConfigModal"></div>
+    <div id="modalBrokerProvider"></div>
+    <input type="text" id="modalAlpacaInputs" />
+    <input type="text" id="modalIndianInputs" />
+    <button type="button" id="btnSaveBrokerSettings"></button>
+    <div id="modalAlpacaKey"></div>
+    <div id="modalAlpacaSecret"></div>
+    <div id="modalIndianKey"></div>
+    <div id="modalIndianToken"></div>
+    <div id="capitalCurrencyPrefix"></div>
+    <div id="assetSymbol"></div>
+    <div id="assetCompanyName"></div>
+    <div id="assetMarket"></div>
+    <div id="assetTrendTag"></div>
+    <div id="assetLivePrice"></div>
+    <div id="assetLiveDelta"></div>
+    <div id="assetDayLow"></div>
+    <div id="assetDayHigh"></div>
+    <div id="assetVolume"></div>
+    <div id="verdictRecommendation"></div>
+    <div id="verdictConfidence"></div>
+    <div id="verdictNarrative"></div>
+    <div id="valRsi"></div>
+    <div id="statRsi"></div>
+    <div id="valEma"></div>
+    <div id="statEma"></div>
+    <div id="valMacd"></div>
+    <div id="statMacd"></div>
+    <div id="valTargetSl"></div>
+    <div id="statTargetSl"></div>
+    <div id="pfTargetPrice"></div>
+    <div id="pfStopLossPrice"></div>
+    <div id="pfRiskReward"></div>
+    <div id="pfDurationText"></div>
+    <div id="orderErrorBanner"></div>
+    <div id="deskEffectivePower"></div>
+    <div id="pfRouteText"></div>
+    <div id="pfSlippageText"></div>
+    <table id="screenerTableBody"></table>
+    <div id="screenerCountBadge"></div>
+    <div id="ribbonNav"></div>
+    <div id="ribbonCash"></div>
+    <div id="ribbonInvested"></div>
+    <div id="ribbonFloatingPnl"></div>
+    <div id="ribbonOpenCount"></div>
+    <div id="deskAvailMargin"></div>
+    <table id="auditLedgerBody"></table>
+    <div id="chatActiveAssetLabel"></div>
+    <div id="aiChatDrawer"></div>
+    <div id="aiChatMessages"></div>
+    <div id="tabOrderBook"></div>
+    <div id="tabTimeSales"></div>
+    <div id="depthOrderBookView"></div>
+    <div id="depthTimeSalesView"></div>
+    <div id="depthBidPressure"></div>
+    <div id="depthAskPressure"></div>
+    <input type="text" id="obSpreadVal" />
+    <div id="obSpreadPct"></div>
+    <div id="legSpread"></div>
+    <table id="obBidsRows"></table>
+    <table id="obAsksRows"></table>
+    <table id="tapeRowsContainer"></table>
+    <div id="legSym"></div>
+    <div id="legTf"></div>
+    <div id="legOpen"></div>
+    <div id="legHigh"></div>
+    <div id="legLow"></div>
+    <div id="legClose"></div>
+    <div id="legChange"></div>
+    <div id="clockUtc"></div>
+    <div id="clockNyc"></div>
+    <div id="clockLon"></div>
+    <div id="clockMum"></div>
+    <div id="phoneAccessUrl"></div>
+    <div id="phoneDirectLink"></div>
+    <div id="phoneAccessLabel"></div>
+    <div id="tunnelPasswordBox"></div>
+    <input type="text" id="tunnelPasswordVal" />
+    <div id="tabModePublic"></div>
+    <div id="tabModeWifi"></div>
+    <div id="phoneQrContainer"></div>
+    <div id="phoneConnectModal"></div>
+    <div id="executionOrderBox"></div>
+    <div id="chkAudioAlert"></div>
+    <div id="chkPushNotification"></div>
+    <button type="button" id="btnRadarMute"></button>
+    <div id="radarAssetTitle"></div>
+    <div id="radarTriggerTime"></div>
+    <div id="radarBuyPrice"></div>
+    <div id="radarBuyTiming"></div>
+    <div id="radarBuyConviction"></div>
+    <div id="radarSellPrice"></div>
+    <div id="radarSellTiming"></div>
+    <div id="radarStopLossPrice"></div>
+    <div id="radarFooterDesc"></div>
+    <div id="proofBullet1"></div>
+    <div id="proofBullet2"></div>
+    <div id="proofBullet3"></div>
+    <div id="radarCountdownTimer"></div>
+    <div id="liveSignalAlertBar"></div>
+    <div id="lblActiveTrackedSymbol"></div>
+    <div id="lblActiveTrackedPrice"></div>
+    <div id="lblActiveTrackedSignal"></div>
+    <div id="lblActiveTrackedTarget"></div>
+    <div id="trackTriggerMode"></div>
+    <input type="text" id="targetPriceInputWrap" />
+    <input type="text" id="trackAssetInput" />
+    <div id="trackTargetPrice"></div>
+    <input type="text" id="inlineAiPromptInput" />
+    <div id="inlineAiAnswerBox"></div>
+    <div id="inlineAiAnswerContent"></div>
+    <button type="button" id="btnSubmitInlineAi"></button>
+  </div>
+
+  <script src="client_engine.js?v=5.0"></script>
+  <script src="app.js?v=5.0"></script>
 </body>
 </html>

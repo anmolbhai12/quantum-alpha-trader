@@ -2560,3 +2560,73 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     }
   }
 };
+
+
+// ========================================================
+// CHATGPT-STYLE QUANTUM TRADE ANALYZER CONTROLLERS
+// ========================================================
+window.toggleSidebar = function() {
+  const s = document.getElementById('chatSidebar');
+  if (s) s.classList.toggle('open');
+};
+
+window.startNewAnalysis = function() {
+  const thread = document.getElementById('frontAiChatThread');
+  const welcome = document.getElementById('aiWelcomeCard');
+  const input = document.getElementById('frontAiInput');
+  if (thread) {
+    thread.innerHTML = '';
+    thread.style.display = 'none';
+  }
+  if (welcome) welcome.style.display = 'flex';
+  if (input) {
+    input.value = '';
+    input.focus();
+  }
+  const s = document.getElementById('chatSidebar');
+  if (s && window.innerWidth <= 768) s.classList.remove('open');
+};
+
+window.handleChatInputKeyDown = function(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    window.submitFrontAiQuery();
+  }
+};
+
+// Auto-expand textarea
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id === 'frontAiInput') {
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+  }
+});
+
+// Sync top bar when asset changes
+const _baseSelectAsset = window.selectAsset;
+window.selectAsset = function(symbol) {
+  if (_baseSelectAsset) _baseSelectAsset(symbol);
+  setTimeout(() => {
+    const q = (typeof state !== 'undefined' && state.quotes) ? state.quotes[symbol] : null;
+    const symEl = document.getElementById('topActiveSym');
+    const nameEl = document.getElementById('topActiveName');
+    const priceEl = document.getElementById('topActivePrice');
+    const chgEl = document.getElementById('topActiveChange');
+    if (q) {
+      if (symEl) symEl.textContent = q.symbol;
+      if (nameEl) nameEl.textContent = q.name;
+      if (priceEl && typeof fmtCurrency === 'function') priceEl.textContent = fmtCurrency(q.price, q.currency);
+      if (chgEl) {
+        const isBull = (q.change_pct || 0) >= 0;
+        chgEl.className = 'active-change ' + (isBull ? 'bull' : 'bear');
+        chgEl.textContent = (isBull ? '+' : '') + (q.change_pct || 0).toFixed(2) + '%';
+      }
+    }
+    document.querySelectorAll('.sidebar-asset-btn').forEach(b => {
+      if (b.getAttribute('data-sym') === symbol) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+    const s = document.getElementById('chatSidebar');
+    if (s && window.innerWidth <= 768) s.classList.remove('open');
+  }, 100);
+};
