@@ -33,8 +33,8 @@
       <div class="search-results-menu" id="searchResultsMenu"></div>
     </div>
 
-    <!-- Live Institutional World Clocks -->
-    <div class="world-clocks-strip num" id="worldClocksStrip">
+    <!-- Live Institutional World Clocks (Hidden to reduce clutter) -->
+    <div class="world-clocks-strip num" id="worldClocksStrip" style="display:none;">
       <span class="clock-item">UTC <strong id="clockUtc">--:--:--</strong></span>
       <span class="clock-item">NYC <strong id="clockNyc">--:--:--</strong></span>
       <span class="clock-item">LON <strong id="clockLon">--:--:--</strong></span>
@@ -43,11 +43,6 @@
 
     <!-- Header Right Controls -->
     <div class="header-actions">
-      <!-- Phone Connect Button -->
-      <button type="button" id="btnOpenPhoneModal" class="btn-phone-sync" onclick="openPhoneModal()" title="Trade on your Mobile Phone">
-        <span>📱 PHONE CONNECT</span>
-      </button>
-
       <!-- 12 Global Currencies Switcher -->
       <div class="currency-select-box">
         <span style="color:var(--text-faint); font-size:10px;">CURRENCY:</span>
@@ -67,13 +62,10 @@
         </select>
       </div>
 
-      <!-- Execution Mode Switcher -->
-      <div class="currency-select-box">
-        <span style="color:var(--text-faint); font-size:10px;">ROUTING:</span>
-        <select id="routingSelect" class="styled-select">
-          <option value="SANDBOX">Institutional Sandbox</option>
-          <option value="LIVE_BROKER">Live Broker API</option>
-        </select>
+      <div style="display:none;">
+        <select id="routingSelect"><option value="SANDBOX">Sandbox</option></select>
+        <button type="button" id="btnOpenPhoneModal"></button>
+        <button type="button" id="btnToggleAiChat"></button>
       </div>
 
       <!-- Live Buy & Sell Alert Notifications Bell -->
@@ -99,30 +91,48 @@
         </div>
       </div>
 
-      <!-- Conversational AI Copilot Button -->
-      <button type="button" id="btnToggleAiChat" class="btn-ai-consult" onclick="toggleAiChatDrawer()">
-        <span>💬 AI ANALYST</span>
-      </button>
-
       <!-- Feed Status Pulse -->
       <div class="feed-pulse">
         <span class="pulse-dot"></span>
-        <span>24/7 FIX DMA LIVE</span>
+        <span>AI LIVE ENGINE</span>
       </div>
     </div>
   </header>
 
-  <!-- Market Sector Navigation Strip -->
-  <nav class="market-nav-strip">
-    <button class="market-tab active" data-market="ALL">ALL ASSETS & SIGNALS</button>
-    <button class="market-tab" data-market="US">US EQUITIES (NYSE / NASDAQ)</button>
-    <button class="market-tab" data-market="IN">INDIAN EQUITIES (NSE / BSE)</button>
-    <button class="market-tab" data-market="EU">EUROPE & UK (LSE / DAX)</button>
-    <button class="market-tab" data-market="ASIA">ASIA-PACIFIC (NIKKEI / HANG SENG)</button>
-    <button class="market-tab" data-market="CRYPTO">DIGITAL ASSETS & CRYPTO</button>
-    <button class="market-tab" data-market="COMMODITIES">COMMODITIES (GOLD & OIL)</button>
-    <button class="market-tab" data-market="FOREX">GLOBAL FOREX & CURRENCIES</button>
-    <button class="market-tab" data-market="INDICES">WORLD INDICES</button>
+  <!-- Clean Quick Asset Watchlist -->
+  <div class="quick-asset-strip">
+    <span class="strip-label">SELECT ASSET:</span>
+    <button type="button" class="quick-asset-btn active" onclick="selectAsset('NVDA')">
+      🟢 NVDA (NVIDIA)
+    </button>
+    <button type="button" class="quick-asset-btn" onclick="selectAsset('TSLA')">
+      ⚡ TSLA (Tesla)
+    </button>
+    <button type="button" class="quick-asset-btn" onclick="selectAsset('AAPL')">
+      🍏 AAPL (Apple)
+    </button>
+    <button type="button" class="quick-asset-btn" onclick="selectAsset('RELIANCE.NS')">
+      🇮🇳 RELIANCE (India)
+    </button>
+    <button type="button" class="quick-asset-btn" onclick="selectAsset('BTC/USD')">
+      ₿ BITCOIN (Crypto)
+    </button>
+    <button type="button" class="quick-asset-btn" onclick="selectAsset('GC=F')">
+      🪙 GOLD (Commodity)
+    </button>
+  </div>
+
+  <!-- Legacy Navigation (Hidden to reduce clutter) -->
+  <nav class="market-nav-strip" style="display:none;">
+    <button class="market-tab active" data-market="ALL">ALL</button>
+    <button class="market-tab" data-market="US">US</button>
+    <button class="market-tab" data-market="IN">IN</button>
+    <button class="market-tab" data-market="EU">EU</button>
+    <button class="market-tab" data-market="ASIA">ASIA</button>
+    <button class="market-tab" data-market="CRYPTO">CRYPTO</button>
+    <button class="market-tab" data-market="COMMODITIES">COMMODITIES</button>
+    <button class="market-tab" data-market="FOREX">FOREX</button>
+    <button class="market-tab" data-market="INDICES">INDICES</button>
   </nav>
 
   <!-- ========================================================
@@ -431,8 +441,8 @@
         <div class="tv-chart-viewport" id="tvChartContainer"></div>
       </div>
 
-      <!-- Institutional Level-2 Market Depth & Live Tape Panel -->
-      <div class="depth-tape-card">
+      <!-- Institutional Level-2 Market Depth & Live Tape Panel (Hidden to remove clutter) -->
+      <div class="depth-tape-card" style="display:none !important;">
         <div class="depth-tape-header">
           <div class="depth-tab-group">
             <button type="button" class="depth-tab-btn active" id="tabOrderBook" onclick="switchDepthTab('book')">
@@ -496,8 +506,8 @@
         </div>
       </div>
 
-      <!-- AI Quantitative Intelligence & Plain-English Report -->
-      <div class="ai-report-card">
+      <!-- AI Quantitative Intelligence & Plain-English Report (Hidden to remove clutter) -->
+      <div class="ai-report-card" style="display:none !important;">
         <div class="report-header">
           <div class="report-title">
             <span>AI QUANTITATIVE DIAGNOSTIC VERDICT</span>
@@ -547,8 +557,8 @@
         </div>
       </div>
 
-      <!-- Real-Time Asset Tracker & Live Signal Alerts Radar -->
-      <div class="tracker-card">
+      <!-- Real-Time Asset Tracker & Live Signal Alerts Radar (Hidden to remove clutter) -->
+      <div class="tracker-card" style="display:none !important;">
         <div class="tracker-header">
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="tracker-radar-pulse"></span>
@@ -628,8 +638,8 @@
         </div>
       </div>
 
-      <!-- Interactive AI Copilot Console -->
-      <div class="ai-copilot-card">
+      <!-- Interactive AI Copilot Console (Hidden to remove clutter) -->
+      <div class="ai-copilot-card" style="display:none !important;">
         <div class="copilot-header">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="font-size:14px;">🧠</span>
@@ -686,8 +696,8 @@
         </div>
       </div>
 
-      <!-- Market Screener Table for Current Sector -->
-      <div class="screener-card">
+      <!-- Market Screener Table (Hidden to remove clutter) -->
+      <div class="screener-card" style="display:none !important;">
         <div class="screener-header">
           <span style="font-size:12px; font-weight:700; color:#fff; text-transform:uppercase;">
             Market Universe & Real-Time Movers
@@ -721,8 +731,8 @@
     <!-- Right: Automated Order Desk, Active Timers & Audit Desk -->
     <div class="execution-sidebar">
 
-      <!-- Order Execution & Timer Configuration Dock -->
-      <div class="order-box" id="executionOrderBox">
+      <!-- Order Execution & Timer Configuration Dock (Hidden to remove clutter) -->
+      <div class="order-box" id="executionOrderBox" style="display:none !important;">
         <div class="box-title">
           <span>AUTONOMOUS EXECUTION DOCK</span>
           <span style="font-size:10px; color:var(--text-faint);">Exact Timer Exit</span>

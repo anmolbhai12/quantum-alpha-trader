@@ -3281,3 +3281,50 @@ body {
   box-shadow: 0 6px 22px rgba(0, 230, 118, 0.6);
   filter: brightness(1.1);
 }
+
+/* Quick 6-Asset Selector Strip */
+.quick-asset-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: rgba(14, 20, 31, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+}
+
+.strip-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+}
+
+.quick-asset-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.quick-asset-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.quick-asset-btn.active {
+  background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(56, 189, 248, 0.2));
+  border-color: #00e676;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+}

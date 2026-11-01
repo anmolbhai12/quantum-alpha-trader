@@ -2475,21 +2475,11 @@ window.submitFrontAiQuery = async function(overridePrompt) {
 
     if (signalAudioEnabled) playChime('BUY');
 
-    const aiCard = document.createElement('div');
-    aiCard.className = 'thread-ai-card';
-    aiCard.innerHTML = `
-      <div class="ai-card-top">
-        <div class="ai-analyst-tag">
-          <span style="font-size:14px;">🧠</span>
-          <span>AI MARKET ANALYST • VERIFIED TELEMETRY</span>
-        </div>
-        <span class="front-ai-status-pill">CONVICTION: ${data.confidence || 96}%</span>
-      </div>
+    const hasTradeBlueprint = data.proof_canvas !== false && data.buy_price !== undefined;
 
-      <div class="ai-card-content">
-        ${formatMarkdownToHtml(data.response)}
-      </div>
-
+    let tradeBlueprintHtml = '';
+    if (hasTradeBlueprint) {
+      tradeBlueprintHtml = `
       <!-- Synchronized Dual Buy & Sell Execution Blueprint -->
       <div class="ai-inline-dual-plan">
         <div class="plan-col buy">
@@ -2522,14 +2512,35 @@ window.submitFrontAiQuery = async function(overridePrompt) {
       <button type="button" class="btn-execute-from-ai" onclick="executeDualRadarTrade()">
         🚀 1-CLICK: BUY NOW (${fmtCurrency(buyP, curr)}) & AUTO-SELL AT TARGET (${fmtCurrency(sellP, curr)})
       </button>
+      `;
+    }
+
+    const aiCard = document.createElement('div');
+    aiCard.className = 'thread-ai-card';
+    aiCard.innerHTML = `
+      <div class="ai-card-top">
+        <div class="ai-analyst-tag">
+          <span style="font-size:14px;">🧠</span>
+          <span>AI MARKET ANALYST • VERIFIED TELEMETRY</span>
+        </div>
+        <span class="front-ai-status-pill">CONVICTION: ${data.confidence || 96}%</span>
+      </div>
+
+      <div class="ai-card-content">
+        ${formatMarkdownToHtml(data.response)}
+      </div>
+
+      ${tradeBlueprintHtml}
     `;
 
     thread.appendChild(aiCard);
 
-    // Render the proof canvas diagram
-    setTimeout(() => {
-      drawDualProofPicture(canvasId, data);
-    }, 100);
+    // Render the proof canvas diagram only if blueprint exists
+    if (hasTradeBlueprint) {
+      setTimeout(() => {
+        drawDualProofPicture(canvasId, data);
+      }, 100);
+    }
 
     state.chatHistory.push({ role: 'user', content: prompt });
     state.chatHistory.push({ role: 'assistant', content: data.response });
