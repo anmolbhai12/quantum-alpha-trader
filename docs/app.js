@@ -2466,16 +2466,17 @@ window.submitFrontAiQuery = async function(overridePrompt) {
     const gainPct = data.gain_pct || (((sellP - buyP) / buyP) * 100).toFixed(2);
     const lossPct = data.loss_pct || (((buyP - stopP) / buyP) * 100).toFixed(2);
 
-    // If query mentioned another asset, switch to it automatically!
-    if (sym && sym !== state.selectedSymbol && state.quotes[sym]) {
-      window.selectAsset(sym);
-    } else {
-      updateDualExecutionRadar(data);
+    const hasTradeBlueprint = data.proof_canvas === true && data.buy_price !== undefined;
+
+    // Only update active asset radar and play chime if this is an actual trade blueprint
+    if (hasTradeBlueprint) {
+      if (sym && sym !== state.selectedSymbol && state.quotes[sym]) {
+        window.selectAsset(sym);
+      } else {
+        updateDualExecutionRadar(data);
+      }
+      if (signalAudioEnabled) playChime('BUY');
     }
-
-    if (signalAudioEnabled) playChime('BUY');
-
-    const hasTradeBlueprint = data.proof_canvas !== false && data.buy_price !== undefined;
 
     let tradeBlueprintHtml = '';
     if (hasTradeBlueprint) {

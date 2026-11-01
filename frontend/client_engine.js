@@ -11,6 +11,7 @@
  */
 
 (function() {
+  const _nativeFetch = (typeof window !== "undefined" && window.fetch) ? window.fetch.bind(window) : (typeof fetch !== "undefined" ? fetch : null);
   const MARKETS_DATA = {
     US: [
       { symbol: "NVDA", name: "NVIDIA Corporation", currency: "USD", sector: "Semiconductors / AI", base: 141.25 },
@@ -298,7 +299,7 @@
           generationConfig: { maxOutputTokens: 1200, temperature: 0.6 }
         };
 
-        const fetcher = typeof nativeFetch !== 'undefined' ? nativeFetch : fetch;
+        const fetcher = _nativeFetch;
         const res = await fetcher(
           "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + apiKey,
           {
@@ -706,7 +707,7 @@
   setInterval(() => runtime.applyMicroTicks(), 1500);
 
   // Monkeypatch window.fetch for transparent /api/ handling on GitHub Pages
-  const nativeFetch = window.fetch;
+  const nativeFetch = _nativeFetch;
   window.fetch = async function(url, options = {}) {
     if (typeof url === 'string' && url.includes('/api/')) {
       // Determine if we should handle via runtime
