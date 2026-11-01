@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Tunnel and temporary logs
+tunnel_url.txt
+*.log
+test_*.py
+
+# System files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
