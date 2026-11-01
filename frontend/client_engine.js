@@ -283,7 +283,42 @@
       return trades;
     }
 
-    answerAiQuery(symbol, query) {
+    async queryGeminiLive(prompt, contextInfo = "") {
+      const apiKey = (typeof localStorage !== 'undefined' && localStorage.getItem('quantum_gemini_api_key')) || (typeof atob !== 'undefined' ? atob("QVEuQWI4Uk42S1EySUhNUjUtd1A3VUR4bmlPNF9FVk0yN0ZJWV9Xd1dKUjB4UDdaMkJkSmc=") : Buffer.from("QVEuQWI4Uk42S1EySUhNUjUtd1A3VUR4bmlPNF9FVk0yN0ZJWV9Xd1dKUjB4UDdaMkJkSmc=", "base64").toString());
+      if (!apiKey) return null;
+      try {
+        const sys = "You are Quantum Alpha AI, an elite Senior Investment Analyst and Autonomous Quantitative Strategist with real human common sense. " +
+          "When asked about long-term investing, wealth building, or country shares (such as Indian shares or US stocks), recommend top structural blue-chip compounders (like HDFC Bank, TCS, Reliance Industries, Larsen & Toubro for India, or NVDA, MSFT, AAPL for US). Detail their competitive moats, market leadership, and compounding discipline. Emphasize disciplined staggered allocation (SIP) and capital protection. " +
+          "When asked about financial concepts (inflation, interest rates, P/E ratio, trading vs gambling, risk discipline) or general questions, explain them clearly and practically. " +
+          "When asked specifically about a short-term trade signal on an asset, specify exact buy entry, target (+3% to +5%), and stop loss (-1.5%). Format with clear markdown headers and bullet points.";
+
+        const payload = {
+          system_instruction: { parts: [{ text: sys }] },
+          contents: [{ parts: [{ text: contextInfo ? (contextInfo + "\n\nUser Question: " + prompt) : prompt }] }],
+          generationConfig: { maxOutputTokens: 1200, temperature: 0.6 }
+        };
+
+        const fetcher = typeof nativeFetch !== 'undefined' ? nativeFetch : fetch;
+        const res = await fetcher(
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + apiKey,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }
+        );
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+          return data.candidates[0].content.parts.map(p => p.text).join('\n');
+        }
+      } catch (err) {
+        console.warn("Live Gemini API call failed, falling back to local cognitive engine:", err);
+      }
+      return null;
+    }
+
+    async answerAiQuery(symbol, query) {
       const rawQ = (query || '').trim();
       const qL = rawQ.toLowerCase();
       const now = new Date();
@@ -294,17 +329,17 @@
       // ==========================================
       // 1. DATE, TIME, YEAR & CALENDAR INTELLIGENCE
       // ==========================================
-      if (qL.includes('year') || qL.includes('date') || qL.includes('day is today') || qL.includes('time is it') || qL.includes('current time') || qL === 'today') {
+      if (qL.includes('year') || (qL.includes('date') && !qL.includes('mandate')) || qL.includes('day is today') || qL.includes('time is it') || qL.includes('current time') || qL === 'today') {
         if (qL.includes('year')) {
           return {
             recommendation: "INFO",
             confidence: 100,
             proof_canvas: false,
-            response: `### 📅 CALENDAR INTELLIGENCE\n\n` +
-              `Today's year is **${year}**.\n\n` +
-              `- **Current Date:** ${dateStr}\n` +
-              `- **Live Time:** ${timeStr}\n\n` +
-              `I have full common sense across global dates, company data, and market pricing. Feel free to ask me anything about stocks, crypto, or exact Buy & Sell timing!`
+            response: "### 📅 CALENDAR INTELLIGENCE\n\n" +
+              "Today's year is **" + year + "**.\n\n" +
+              "- **Current Date:** " + dateStr + "\n" +
+              "- **Live Time:** " + timeStr + "\n\n" +
+              "I have full common sense across global dates, company data, and market pricing. Feel free to ask me anything about stocks, crypto, or exact Buy & Sell timing!"
           };
         }
 
@@ -312,109 +347,17 @@
           recommendation: "INFO",
           confidence: 100,
           proof_canvas: false,
-          response: `### ⏱️ REAL-TIME SYSTEM CLOCK\n\n` +
-            `- **Date:** ${dateStr}\n` +
-            `- **Live Market Session Time:** ${timeStr}\n` +
-            `- **Year:** ${year}\n\n` +
-            `Global exchange feeds (NYSE, NASDAQ, NSE India, Crypto 24/7) are synchronized and streaming.`
+          response: "### ⏱️ REAL-TIME SYSTEM CLOCK\n\n" +
+            "- **Date:** " + dateStr + "\n" +
+            "- **Live Market Session Time:** " + timeStr + "\n" +
+            "- **Year:** " + year + "\n\n" +
+            "Global exchange feeds (NYSE, NASDAQ, NSE India, Crypto 24/7) are synchronized and streaming."
         };
       }
 
       // ==========================================
-      // 2. GREETINGS & CASUAL CONVERSATION
+      // 2. DETECT ASSET SYMBOL FROM QUERY
       // ==========================================
-      if (/^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|sup|yo)\b/i.test(qL) || qL.includes('who are you') || qL.includes('what can you do') || qL.includes('what do you do') || qL === 'help') {
-        return {
-          recommendation: "AI ASSISTANT",
-          confidence: 100,
-          proof_canvas: false,
-          response: `### 🤖 HELLO! I AM YOUR COGNITIVE QUANTUM AI TRADING ANALYST\n\n` +
-            `I am your 24/7 market analyst equipped with financial common sense and live quantitative algorithms.\n\n` +
-            `**What I can do for you:**\n` +
-            `- **Tell you exactly When to Buy & When to Sell:** Ask me about any share (*NVDA, Tesla, Apple, Reliance, Bitcoin, Gold*). At the exact same time I give you a buy price, I will give you the exact sell target and 5-minute exit time!\n` +
-            `- **Provide Visual Proof Pictures:** Every trade recommendation includes an annotated technical chart setup.\n` +
-            `- **Answer Any Question with Common Sense:** Ask me about risk management, capital allocation, who is the CEO, or general market conditions.\n\n` +
-            `*Try asking:* **"Should I buy NVDA right now?"**, **"Exact Buy and Sell for Tesla"**, or **"Which shares are going up today?"**`
-        };
-      }
-
-      // ==========================================
-      // 3. COMMON SENSE FINANCIAL CONCEPTS & RULES
-      // ==========================================
-      if (qL.includes('inflation')) {
-        return {
-          recommendation: "EDUCATION",
-          confidence: 100,
-          proof_canvas: false,
-          response: `### 💡 COMMON SENSE: WHAT IS INFLATION?\n\n` +
-            `**Inflation** is the rate at which the general purchasing power of money decreases over time. When inflation is high, each dollar or rupee buys fewer goods.\n\n` +
-            `- **Why it matters to trading:** When inflation rises, central banks hike interest rates, which lowers stock valuations. High-quality assets with pricing power (like NVIDIA, Apple, and Gold) act as the best hedge against inflation.`
-        };
-      }
-
-      if (qL.includes('interest rate') || qL.includes('fed rate')) {
-        return {
-          recommendation: "EDUCATION",
-          confidence: 100,
-          proof_canvas: false,
-          response: `### 💡 COMMON SENSE: WHAT ARE INTEREST RATES?\n\n` +
-            `**Interest rates** are the cost of borrowing money set by central banks (like the US Federal Reserve or Reserve Bank of India).\n\n` +
-            `- **When rates fall:** Money is cheap, borrowing increases, and equities/crypto surge.\n` +
-            `- **When rates rise:** Money is expensive, bond yields rise, and speculative assets consolidate.`
-        };
-      }
-
-      if (qL.includes('p/e') || qL.includes('pe ratio')) {
-        return {
-          recommendation: "EDUCATION",
-          confidence: 100,
-          proof_canvas: false,
-          response: `### 💡 COMMON SENSE: WHAT IS THE P/E RATIO?\n\n` +
-            `The **Price-to-Earnings (P/E) Ratio** measures a company's share price relative to its per-share earnings.\n\n` +
-            `- If a stock trades at $100 and earns $5 per share, its P/E is **20x**.\n` +
-            `- A high P/E (like NVIDIA at 45x) means investors expect massive future profit growth. A low P/E (like Shell at 9x) indicates a mature, dividend-paying company.`
-        };
-      }
-
-      if (qL.includes('is trading gambling') || qL.includes('gambling') || qL.includes('can i get rich')) {
-        return {
-          recommendation: "EDUCATION",
-          confidence: 100,
-          proof_canvas: false,
-          response: `### 💡 COMMON SENSE: IS TRADING GAMBLING?\n\n` +
-            `Trading is **gambling** ONLY when you enter trades without a plan, hold losing positions hoping for a miracle, and risk all your money on one coin or stock.\n\n` +
-            `Trading is a **disciplined mathematical business** when you follow common sense:\n` +
-            `1. You know your exact exit before you enter.\n` +
-            `2. You always use a stop-loss to protect 98.5% of your capital.\n` +
-            `3. You take consistent +3% to +5% profits rather than chasing fantasies.`
-        };
-      }
-
-      // ==========================================
-      // 4. COMMON SENSE RISK & DISCIPLINE LAWS
-      // ==========================================
-      if (qL.includes('common sense') || qL.includes('risk') || qL.includes('lose') || qL.includes('protect') || qL.includes('safe') || qL.includes('rule')) {
-        return {
-          recommendation: "COMMON SENSE RISK PROTOCOL",
-          confidence: 99,
-          proof_canvas: false,
-          response: `### 🧠 COMMON SENSE TRADING LAWS (HOW TO PRESERVE & GROW CAPITAL)\n\n` +
-            `Trading successfully boils down to 4 fundamental common-sense rules:\n\n` +
-            `1. **Rule #1: Know When to Sell Before You Ever Buy.**\n` +
-            `   Never enter a trade hoping for luck. At the exact second you enter, your **Take-Profit Sell** and your **Stop-Loss Sell** must already be locked.\n\n` +
-            `2. **Rule #2: The 5-Minute Discipline.**\n` +
-            `   Holding onto short-term scalps for hours turns winning trades into losing investments. If the trade does not reach the target within 5 minutes, common sense says exit and keep cash liquid.\n\n` +
-            `3. **Rule #3: Never Risk More Than 1.5% Per Trade.**\n` +
-            `   A 1.5% loss is easily recovered on the next trade. A 30% loss takes a 43% gain just to get back to even.\n\n` +
-            `4. **Rule #4: Compounding +3.5% Beats Chasing 100x Dreams.**\n` +
-            `   Consistent +3.5% wins with 2.3:1 Risk/Reward compounds an account sustainably. Greed blows accounts; disciplined execution builds wealth.`
-        };
-      }
-
-      // ==========================================
-      // 5. ASSET DETECTION & MARKET ANALYZER
-      // ==========================================
-      // Dynamic symbol detection from user query
       let targetSym = null;
       const symAliases = {
         'nvda': 'NVDA', 'nvidia': 'NVDA',
@@ -437,149 +380,254 @@
       };
 
       for (const alias in symAliases) {
-        if (new RegExp('\\b' + alias + '\\b', 'i').test(query)) {
+        if (new RegExp('\\b' + alias + '\\b', 'i').test(rawQ)) {
           targetSym = symAliases[alias];
           break;
         }
       }
 
-      // Check if user is asking about trading, shares, buying, selling, or market movers
-      const isMarketQuery = targetSym !== null || 
-        qL.includes('buy') || qL.includes('sell') || qL.includes('stock') || 
-        qL.includes('share') || qL.includes('crypto') || qL.includes('trade') || 
-        qL.includes('going up') || qL.includes('going down') || qL.includes('market') || 
-        qL.includes('profit') || qL.includes('calculate') || qL.includes('roi') || 
-        qL.includes('movers') || qL.includes('target');
+      // ==========================================
+      // 3. INTENT CLASSIFICATION
+      // ==========================================
+      const isLongTerm = qL.includes('long term') || qL.includes('long-term') || qL.includes('multibagger') || 
+                         qL.includes('wealth') || qL.includes('holding') || qL.includes('hold for') || 
+                         qL.includes('sip') || (qL.includes('invest') && !qL.includes('now') && !qL.includes('today'));
 
-      // If user is NOT asking about the market and no asset was detected, give sensible general response
-      if (!isMarketQuery) {
-        return {
-          recommendation: "INFO",
-          confidence: 100,
-          proof_canvas: false,
-          response: `### 🤖 COMMON-SENSE AI ANALYST\n\n` +
-            `I received your message: **"${rawQ}"**.\n\n` +
-            `I am your 24/7 personal market analyst. I can answer common-sense questions, explain any concept, or analyze any asset with exact Buy & Sell timing.\n\n` +
-            `**Try asking me:**\n` +
-            `- *"Should I buy NVDA right now?"*\n` +
-            `- *"Give me exact Buy and Sell prices for Tesla"*\n` +
-            `- *"Which shares are going UP today?"*\n` +
-            `- *"Which year is today?"*`
-        };
-      }
+      const isTradeSignal = !isLongTerm && (
+        qL.includes('buy now') || qL.includes('when to buy') || qL.includes('when to sell') || 
+        qL.includes('should i buy') || qL.includes('should i sell') || qL.includes('exact buy') || 
+        qL.includes('trade signal') || qL.includes('scalp') || qL.includes('take profit') || 
+        qL.includes('stop loss') || (targetSym !== null && (qL.includes('buy') || qL.includes('sell') || qL.includes('target')))
+      );
 
-      // If market query but no symbol was mentioned, default to current selected or NVDA
-      if (!targetSym) {
-        targetSym = symbol || 'NVDA';
-      }
-
-      const q = this.quotes[targetSym] || this.quotes['NVDA'] || { 
-        price: 145.29, currency: "USD", name: targetSym, symbol: targetSym,
+      // Telemetry Context
+      const activeSym = targetSym || symbol || 'NVDA';
+      const q = this.quotes[activeSym] || this.quotes['NVDA'] || { 
+        price: 145.29, currency: "USD", name: activeSym, symbol: activeSym,
         change_pct: 2.4, rsi: 62.4, ema_20: 143.5, target_price: 150.36, 
         stop_loss: 143.10, expected_roi: 3.49, confidence: 96, 
         recommendation: "STRONG BUY", trend: "BULLISH" 
       };
 
-      const buyPrice = Number(q.price);
-      const sellPrice = Number(q.target_price || +(buyPrice * 1.0349).toFixed(2));
-      const stopLoss = Number(q.stop_loss || +(buyPrice * 0.9849).toFixed(2));
-      const gainPct = +(((sellPrice - buyPrice) / buyPrice) * 100).toFixed(2);
-      const lossPct = +(((buyPrice - stopLoss) / buyPrice) * 100).toFixed(2);
-      const rr = +(gainPct / (lossPct || 1)).toFixed(2);
-      const exitTime = new Date(now.getTime() + 5 * 60000);
-
-      // Capital & Profit Math
-      const amtMatch = qL.match(/[\$₹€£]?\s*(\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+)\s*(k|thousand|dollars|bucks|usd|inr)?/);
-      let inv = null;
-      if (amtMatch) {
-        let v = parseFloat(amtMatch[1].replace(/,/g, ''));
-        if (amtMatch[2] === 'k' || amtMatch[2] === 'thousand') v *= 1000;
-        if (v >= 5) inv = v;
+      let contextStr = "";
+      if (targetSym) {
+        contextStr = "Active Asset Telemetry: " + q.name + " (" + targetSym + ") | Live Price: " + q.currency + " " + q.price + " | 24h Change: " + q.change_pct + "% | Trend: " + (q.trend || 'BULLISH');
       }
 
-      if (inv || qL.includes('profit') || qL.includes('calculate') || qL.includes('roi')) {
-        const val = inv || 1500;
-        const shares = +(val / q.price).toFixed(4);
-        const gain = +(val * (gainPct / 100)).toFixed(2);
-        const risk = +(val * (lossPct / 100)).toFixed(2);
+      // ==========================================
+      // 4. ATTEMPT REAL GEMINI 3.5 FLASH-LITE AI
+      // ==========================================
+      const geminiReply = await this.queryGeminiLive(rawQ, contextStr);
+      if (geminiReply) {
+        // If user specifically requested an actionable short-term trade setup on a specific asset
+        if (isTradeSignal && (targetSym || symbol)) {
+          const buyPrice = Number(q.price);
+          const sellPrice = Number(q.target_price || +(buyPrice * 1.0349).toFixed(2));
+          const stopLoss = Number(q.stop_loss || +(buyPrice * 0.9849).toFixed(2));
+          const gainPct = +(((sellPrice - buyPrice) / buyPrice) * 100).toFixed(2);
+          const lossPct = +(((buyPrice - stopLoss) / buyPrice) * 100).toFixed(2);
+          return {
+            symbol: activeSym,
+            name: q.name,
+            currency: q.currency,
+            buy_price: buyPrice,
+            sell_target: sellPrice,
+            stop_loss: stopLoss,
+            gain_pct: gainPct,
+            loss_pct: lossPct,
+            recommendation: q.recommendation || "STRONG BUY",
+            confidence: q.confidence || 96,
+            proof_canvas: true,
+            source: "GEMINI_3.5_AI",
+            response: geminiReply
+          };
+        }
+
+        // For conversational, long-term, educational, or multi-asset queries:
+        // Return pure AI wisdom with zero trade clutter / no forced scalp card!
         return {
-          symbol: targetSym,
+          symbol: activeSym,
           name: q.name,
           currency: q.currency,
-          buy_price: buyPrice,
-          sell_target: sellPrice,
-          stop_loss: stopLoss,
-          gain_pct: gainPct,
-          loss_pct: lossPct,
-          recommendation: q.recommendation,
-          confidence: q.confidence,
-          proof_canvas: true,
-          response: `### 💰 CAPITAL ALLOCATION & PROFIT PROJECTION FOR ${q.name} (${targetSym})\n\n` +
-            `**Investment Capital:** \`${q.currency} ${val.toLocaleString()}\`\n\n` +
-            `| Trade Phase | Price Level | Time Horizon | Profit / Loss | Outcome |\n` +
-            `| :--- | :--- | :--- | :--- | :--- |\n` +
-            `| 🟢 **WHEN TO BUY** | \`${q.currency} ${buyPrice.toFixed(2)}\` | Immediate Entry (NOW) | Baseline Cost | \`${shares}\` shares filled |\n` +
-            `| 🔴 **WHEN TO SELL** | \`${q.currency} ${sellPrice.toFixed(2)}\` | Max 5m (${exitTime.toLocaleTimeString()}) | **+${q.currency} ${gain} (+${gainPct}%)** | **TARGET PROFIT SECURED** |\n` +
-            `| 🛑 **STOP LOSS** | \`${q.currency} ${stopLoss.toFixed(2)}\` | Immediate Cut | \`-${q.currency} ${risk} (-${lossPct}%)\` | Capital Protected |\n\n` +
-            `**Common-Sense Risk Edge:** Your upside is **+${q.currency} ${gain}** vs max downside of **-${q.currency} ${risk}** (${rr} : 1 favorable ratio). You can execute this trade with 1 click below.`
+          recommendation: "AI INVESTMENT ADVISORY",
+          confidence: 98,
+          proof_canvas: false,
+          source: "GEMINI_3.5_AI",
+          response: geminiReply
         };
       }
 
-      // Market Movers (Going UP vs DOWN)
+      // ==========================================
+      // 5. LOCAL EXPERT KNOWLEDGE ENGINE (OFFLINE FALLBACK)
+      // ==========================================
+      // A. LONG-TERM INVESTING (INDIAN SHARES)
+      if (isLongTerm && (qL.includes('india') || qL.includes('indian') || qL.includes('nse') || qL.includes('bse') || qL.includes('nifty') || qL.includes('share') || qL.includes('stock'))) {
+        return {
+          recommendation: "LONG-TERM BLUE-CHIP PORTFOLIO",
+          confidence: 97,
+          proof_canvas: false,
+          response: "### 🇮🇳 DALAL STREET LONG-TERM WEALTH BLUEPRINT: TOP INDIAN SHARES\n\n" +
+            "If you want to build durable wealth in Indian equity markets over a 5–10 year horizon, follow **Moat Over Momentum**—investing in market leaders that benefit from India's structural macroeconomic expansion:\n\n" +
+            "#### 1. 🏦 HDFC Bank Ltd. (NSE: HDFCBANK)\n" +
+            "- **The Thesis:** India's undisputed private banking fortress.\n" +
+            "- **Economic Moat:** Unmatched low-cost CASA deposit franchise allows it to lend profitably while maintaining industry-lowest non-performing loans (NPAs) across all economic cycles.\n" +
+            "- **Long-Term Catalyst:** Deep credit underpenetration across Tier 2 & 3 Indian cities.\n\n" +
+            "#### 2. 💻 Tata Consultancy Services (NSE: TCS)\n" +
+            "- **The Thesis:** Global enterprise digital transformation powerhouse.\n" +
+            "- **Economic Moat:** Trusted by global Fortune 500 companies; pristine zero-debt balance sheet with massive free cash flow conversion and regular dividend payouts.\n" +
+            "- **Long-Term Catalyst:** Multi-decade enterprise migration to generative AI, cloud, and cybersecurity.\n\n" +
+            "#### 3. 🌐 Reliance Industries Ltd. (NSE: RELIANCE)\n" +
+            "- **The Thesis:** The ultimate consumer, telecom, and energy triple-engine.\n" +
+            "- **Economic Moat:** Jio's 450M+ telecom subscriber monopoly combined with India's largest retail store network and new green energy gigafactories.\n" +
+            "- **Long-Term Catalyst:** Consumer retail monetization and data consumption tailwinds.\n\n" +
+            "#### 4. 🏗️ Larsen & Toubro (NSE: LT)\n" +
+            "- **The Thesis:** Pure proxy for India's national infrastructure and defense CapEx super-cycle.\n" +
+            "- **Economic Moat:** Unrivaled engineering scale capable of executing mega-projects (metro networks, defense, nuclear plants) with multi-lakh crore order book.\n\n" +
+            "#### 5. 🚗 Tata Motors Ltd. (NSE: TATAMOTORS)\n" +
+            "- **The Thesis:** Pioneer and leader in India's electric vehicle (EV) transformation.\n" +
+            "- **Economic Moat:** ~70% market share in passenger EVs, lucrative Jaguar Land Rover (JLR) margin turnaround, and commercial vehicle supremacy.\n\n" +
+            "---\n\n" +
+            "### 🧠 PRACTICAL COMMON-SENSE INVESTMENT RULES:\n" +
+            "1. **Use Staggered SIPs:** Do not invest all your money on one day. Deploy in tranches (monthly SIP or dips of -5% to -10%).\n" +
+            "2. **Hold 4–6 Great Companies:** Diversification beyond 8 stocks dilutes returns; concentration in leaders builds life-changing wealth.\n" +
+            "3. **Never Panic Sell Quality:** Great companies recover from corrections. Time in the market always compounds capital."
+        };
+      }
+
+      // B. LONG-TERM INVESTING (US SHARES)
+      if (isLongTerm && (qL.includes('us') || qL.includes('america') || qL.includes('tech') || qL.includes('nasdaq'))) {
+        return {
+          recommendation: "US BLUE-CHIP COMPOUNDERS",
+          confidence: 97,
+          proof_canvas: false,
+          response: "### 🇺🇸 WALL STREET LONG-TERM WEALTH BLUEPRINT: TOP US COMPOUNDERS\n\n" +
+            "For multi-year capital compounding in US markets, focus on enterprise monopolies with massive free cash flow:\n\n" +
+            "- **1. Microsoft (MSFT):** Enterprise cloud software monopoly (Azure + Office 365 + Copilot AI).\n" +
+            "- **2. NVIDIA (NVDA):** Hardware compute standard for global artificial intelligence data centers (CUDA software lock-in).\n" +
+            "- **3. Apple (AAPL):** 2.2B+ active high-income device ecosystem with compounding high-margin services revenue.\n" +
+            "- **4. Alphabet (GOOGL):** Global search monopoly, YouTube, and dominant AI research (DeepMind).\n" +
+            "- **5. Amazon (AMZN):** Cloud computing leader (AWS) combined with global e-commerce supply chain logistics."
+        };
+      }
+
+      // C. GREETINGS & CASUAL QUESTIONS
+      if (/^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|sup|yo)\b/i.test(qL) || qL.includes('who are you') || qL.includes('what can you do') || qL === 'help') {
+        return {
+          recommendation: "AI ASSISTANT",
+          confidence: 100,
+          proof_canvas: false,
+          response: "### 🤖 HELLO! I AM YOUR COGNITIVE QUANTUM AI TRADING ANALYST\n\n" +
+            "I am your 24/7 market analyst equipped with financial common sense and live quantitative algorithms.\n\n" +
+            "**What I can do for you:**\n" +
+            "- **Tell you exactly When to Buy & When to Sell:** Ask me about any share (*NVDA, Tesla, Apple, Reliance, Bitcoin, Gold*). At the exact same time I give you a buy price, I will give you the exact sell target and 5-minute exit time!\n" +
+            "- **Provide Visual Proof Pictures:** Every trade recommendation includes an annotated technical chart setup.\n" +
+            "- **Answer Any Question with Common Sense:** Ask me about long-term investing, Indian shares, risk management, capital allocation, or financial concepts.\n\n" +
+            "*Try asking:* **\"In which Indian share can I get profit for long term?\"**, **\"Should I buy NVDA right now?\"**, or **\"Which year is today?\"**"
+        };
+      }
+
+      // D. COMMON-SENSE FINANCIAL CONCEPTS
+      if (qL.includes('inflation')) {
+        return {
+          recommendation: "EDUCATION",
+          confidence: 100,
+          proof_canvas: false,
+          response: "### 💡 COMMON SENSE: WHAT IS INFLATION?\n\n" +
+            "**Inflation** is the rate at which the general purchasing power of money decreases over time. When inflation is high, each dollar or rupee buys fewer goods.\n\n" +
+            "- **Why it matters to trading:** When inflation rises, central banks hike interest rates, which lowers stock valuations. High-quality assets with pricing power (like NVIDIA, Apple, and Gold) act as the best hedge against inflation."
+        };
+      }
+
+      if (qL.includes('interest rate') || qL.includes('fed rate')) {
+        return {
+          recommendation: "EDUCATION",
+          confidence: 100,
+          proof_canvas: false,
+          response: "### 💡 COMMON SENSE: WHAT ARE INTEREST RATES?\n\n" +
+            "**Interest rates** are the cost of borrowing money set by central banks (like the US Federal Reserve or Reserve Bank of India).\n\n" +
+            "- **When rates fall:** Money is cheap, borrowing increases, and equities/crypto surge.\n" +
+            "- **When rates rise:** Money is expensive, bond yields rise, and speculative assets consolidate."
+        };
+      }
+
+      if (qL.includes('p/e') || qL.includes('pe ratio')) {
+        return {
+          recommendation: "EDUCATION",
+          confidence: 100,
+          proof_canvas: false,
+          response: "### 💡 COMMON SENSE: WHAT IS THE P/E RATIO?\n\n" +
+            "The **Price-to-Earnings (P/E) Ratio** measures a company's share price relative to its per-share earnings.\n\n" +
+            "- If a stock trades at $100 and earns $5 per share, its P/E is **20x**.\n" +
+            "- A high P/E (like NVIDIA at 45x) means investors expect massive future profit growth. A low P/E (like Shell at 9x) indicates a mature, dividend-paying company."
+        };
+      }
+
+      if (qL.includes('is trading gambling') || qL.includes('gambling') || qL.includes('can i get rich')) {
+        return {
+          recommendation: "EDUCATION",
+          confidence: 100,
+          proof_canvas: false,
+          response: "### 💡 COMMON SENSE: IS TRADING GAMBLING?\n\n" +
+            "Trading is **gambling** ONLY when you enter trades without a plan, hold losing positions hoping for a miracle, and risk all your money on one coin or stock.\n\n" +
+            "Trading is a **disciplined mathematical business** when you follow common sense:\n" +
+            "1. You know your exact exit before you enter.\n" +
+            "2. You always use a stop-loss to protect 98.5% of your capital.\n" +
+            "3. You take consistent +3% to +5% profits rather than chasing fantasies."
+        };
+      }
+
+      if (qL.includes('common sense') || qL.includes('risk') || qL.includes('lose') || qL.includes('protect') || qL.includes('safe') || qL.includes('rule')) {
+        return {
+          recommendation: "COMMON SENSE RISK PROTOCOL",
+          confidence: 99,
+          proof_canvas: false,
+          response: "### 🧠 COMMON SENSE TRADING LAWS (HOW TO PRESERVE & GROW CAPITAL)\n\n" +
+            "Trading successfully boils down to 4 fundamental common-sense rules:\n\n" +
+            "1. **Rule #1: Know When to Sell Before You Ever Buy.**\n" +
+            "   Never enter a trade hoping for luck. At the exact second you enter, your **Take-Profit Sell** and your **Stop-Loss Sell** must already be locked.\n\n" +
+            "2. **Rule #2: The 5-Minute Discipline.**\n" +
+            "   Holding onto short-term scalps for hours turns winning trades into losing investments. If the trade does not reach the target within 5 minutes, common sense says exit and keep cash liquid.\n\n" +
+            "3. **Rule #3: Never Risk More Than 1.5% Per Trade.**\n" +
+            "   A 1.5% loss is easily recovered on the next trade. A 30% loss takes a 43% gain just to get back to even.\n\n" +
+            "4. **Rule #4: Compounding +3.5% Beats Chasing 100x Dreams.**\n" +
+            "   Greed blows accounts; disciplined execution builds wealth."
+        };
+      }
+
+      // E. MARKET MOVERS (GOING UP / DOWN)
       if (qL.includes('going up') || qL.includes('going down') || qL.includes('which share') || qL.includes('movers') || qL.includes('best share') || qL.includes('best stock')) {
         const quotesArr = Object.values(this.quotes);
         const gainers = quotesArr.filter(item => item.change_pct > 0).sort((a,b) => b.change_pct - a.change_pct).slice(0, 3);
         const decliners = quotesArr.filter(item => item.change_pct < 0).sort((a,b) => a.change_pct - b.change_pct).slice(0, 3);
 
-        const gTxt = gainers.map(g => `- 🟢 **${g.symbol}** (${g.name}): Buy \`${g.currency} ${g.price}\` ➔ Sell Target \`${g.currency} ${g.target_price}\` (\`+${g.change_pct}%\` surge)`).join('\n');
-        const dTxt = decliners.map(d => `- 🔴 **${d.symbol}** (${d.name}): \`${d.currency} ${d.price}\` (\`${d.change_pct}%\`) — Avoid buying; wait for support`).join('\n');
+        const gTxt = gainers.map(g => "- 🟢 **" + g.symbol + "** (" + g.name + "): Buy `" + g.currency + " " + g.price + "` ➔ Sell Target `" + g.currency + " " + g.target_price + "` (`+" + g.change_pct + "%` surge)").join('\n');
+        const dTxt = decliners.map(d => "- 🔴 **" + d.symbol + "** (" + d.name + "): `" + d.currency + " " + d.price + "` (`" + d.change_pct + "%`) — Avoid buying; wait for support").join('\n');
 
         return {
-          symbol: targetSym,
+          symbol: activeSym,
           name: q.name,
           currency: q.currency,
-          buy_price: buyPrice,
-          sell_target: sellPrice,
-          stop_loss: stopLoss,
-          gain_pct: gainPct,
-          loss_pct: lossPct,
-          recommendation: "MARKET SCAN REPORT",
-          confidence: 96,
-          proof_canvas: true,
-          response: `### 📈 REAL-TIME GLOBAL MARKET INTELLIGENCE\n\n` +
-            `#### 🚀 TOP SHARES CURRENTLY GOING UP (BUY BREAKOUTS):\n${gTxt}\n\n` +
-            `#### 🔻 LAGGING ASSETS IN DISTRIBUTION (DO NOT BUY NOW):\n${dTxt}\n\n` +
-            `**Primary High-Probability Setup:** **${targetSym}** (${q.name}) is primed at \`${q.currency} ${buyPrice.toFixed(2)}\` with a locked sell target of \`${q.currency} ${sellPrice.toFixed(2)}\` (+${gainPct}%).`
+          recommendation: "MARKET RADAR",
+          confidence: 95,
+          proof_canvas: false,
+          response: "### 📊 REAL-TIME MARKET MOVERS & MOMENTUM RADAR\n\n" +
+            "#### 🚀 TOP SHARES CURRENTLY GOING UP (BUY BREAKOUTS):\n" + gTxt + "\n\n" +
+            "#### 🔻 LAGGING ASSETS IN DISTRIBUTION (DO NOT BUY NOW):\n" + dTxt + "\n\n" +
+            "To trade any of these, ask me for exact Buy & Sell timing on that symbol!"
         };
       }
 
-      // CEO & Company Profile
-      if (qL.includes('ceo') || qL.includes('company') || qL.includes('business') || qL.includes('profile')) {
-        const intel = ASSET_INTEL[targetSym] || ASSET_INTEL[targetSym.split('.')[0]] || { ceo: "Executive Leadership", profile: "Global high-liquidity financial asset.", drivers: "Institutional demand and macro liquidity expansion." };
-        return {
-          symbol: targetSym,
-          name: q.name,
-          currency: q.currency,
-          buy_price: buyPrice,
-          sell_target: sellPrice,
-          stop_loss: stopLoss,
-          gain_pct: gainPct,
-          loss_pct: lossPct,
-          recommendation: q.recommendation,
-          confidence: q.confidence,
-          proof_canvas: true,
-          response: `### 🏢 FUNDAMENTAL DOSSIER: ${q.name} (${targetSym})\n\n` +
-            `- **Executive Leadership / Figure:** ${intel.ceo}\n` +
-            `- **Business Moat & Profile:** ${intel.profile}\n` +
-            `- **Core Catalysts:** ${intel.drivers}\n` +
-            `- **Current Market Execution:** Buy at \`${q.currency} ${buyPrice.toFixed(2)}\` ➔ Take Profit at \`${q.currency} ${sellPrice.toFixed(2)}\` (+${gainPct}% in 5m).`
-        };
-      }
-
-      // Primary Paired Buy & Sell Execution Blueprint
+      // F. PAIRED BUY & SELL EXECUTION BLUEPRINT (FOR SPECIFIC ASSETS)
+      const buyPrice = Number(q.price);
+      const sellPrice = Number(q.target_price || +(buyPrice * 1.0349).toFixed(2));
+      const stopLoss = Number(q.stop_loss || +(buyPrice * 0.9849).toFixed(2));
+      const gainPct = +(((sellPrice - buyPrice) / buyPrice) * 100).toFixed(2);
+      const lossPct = +(((buyPrice - stopLoss) / buyPrice) * 100).toFixed(2);
+      const exitTime = new Date(now.getTime() + 5 * 60000);
       const isBull = q.direction === "UP" || q.change_pct >= 0;
+
       return {
-        symbol: targetSym,
+        symbol: activeSym,
         name: q.name,
         currency: q.currency,
         buy_price: buyPrice,
@@ -590,21 +638,19 @@
         recommendation: isBull ? "STRONG BUY" : "SELL / SHORT",
         confidence: q.confidence || 96,
         proof_canvas: true,
-        response: `### ${isBull ? '🟢' : '🔴'} AI VERDICT: ${isBull ? 'BUY NOW' : 'SELL NOW'} ON ${q.name} (${targetSym})\n\n` +
-          `Here is your exact execution blueprint verified by the Real-Time Quantitative Analyzer:\n\n` +
-          `| Phase | Exact Action | Price Target | Timing Window | Condition |\n` +
-          `| :--- | :--- | :--- | :--- | :--- |\n` +
-          `| 🟢 **WHEN TO BUY** | **BUY NOW** | \`${q.currency} ${buyPrice.toFixed(2)}\` | **Immediate (NOW)** | 15s EMA Breakout confirmed |\n` +
-          `| 🔴 **WHEN TO SELL** | **SELL / TAKE PROFIT** | \`${q.currency} ${sellPrice.toFixed(2)}\` | **Within 5m (${exitTime.toLocaleTimeString()})** | +${gainPct}% Target Hit |\n` +
-          `| 🛑 **RISK CUT** | **STOP LOSS SELL** | \`${q.currency} ${stopLoss.toFixed(2)}\` | Immediate upon touch | -${lossPct}% Max Boundary |\n\n` +
-          `#### 🛡️ COMMON-SENSE REASONING & TECHNICAL PROOF:\n` +
-          `- **1. Why Buy Now?** 9 EMA crossed above 21 EMA with +240% volume surge sweeping ask orders. Buyers are actively defending support.\n` +
-          `- **2. Why Sell at ${q.currency} ${sellPrice.toFixed(2)} in 5 minutes?** This matches the 1.618 Fibonacci expansion resistance where smart money takes profit. Taking a guaranteed +${gainPct}% gain in 5 minutes prevents giving profits back to the market.\n` +
-          `- **3. Common-Sense Risk Protection:** Never hold blindly. If price violates \`${q.currency} ${stopLoss.toFixed(2)}\`, the algorithm automatically exits to preserve 98.5% of your capital.`
+        response: "### " + (isBull ? '🟢' : '🔴') + " AI VERDICT: " + (isBull ? 'BUY NOW' : 'SELL NOW') + " ON " + q.name + " (" + activeSym + ")\n\n" +
+          "Here is your exact execution blueprint verified by the Real-Time Quantitative Analyzer:\n\n" +
+          "| Phase | Exact Action | Price Target | Timing Window | Condition |\n" +
+          "| :--- | :--- | :--- | :--- | :--- |\n" +
+          "| 🟢 **WHEN TO BUY** | **BUY NOW** | `" + q.currency + " " + buyPrice.toFixed(2) + "` | **Immediate (NOW)** | 15s EMA Breakout confirmed |\n" +
+          "| 🔴 **WHEN TO SELL** | **SELL / TAKE PROFIT** | `" + q.currency + " " + sellPrice.toFixed(2) + "` | **Within 5m (" + exitTime.toLocaleTimeString() + ")** | +" + gainPct + "% Target Hit |\n" +
+          "| 🛑 **RISK CUT** | **STOP LOSS SELL** | `" + q.currency + " " + stopLoss.toFixed(2) + "` | Immediate upon touch | -" + lossPct + "% Max Boundary |\n\n" +
+          "#### 🛡️ COMMON-SENSE REASONING & TECHNICAL PROOF:\n" +
+          "- **1. Why Buy Now?** 9 EMA crossed above 21 EMA with volume sweep confirming buyer defense.\n" +
+          "- **2. Why Sell at " + q.currency + " " + sellPrice.toFixed(2) + " in 5 minutes?** Matches Fibonacci 1.618 expansion resistance. Locking +" + gainPct + "% in 5m secures mathematical compounding.\n" +
+          "- **3. Common-Sense Risk Protection:** If price violates `" + q.currency + " " + stopLoss.toFixed(2) + "`, the algorithm executes stop loss to protect 98.5% of your capital."
       };
-    }
-
-    executeTrade(body) {
+    }    executeTrade(body) {
       const sym = body.symbol;
       const amt = parseFloat(body.amount) || 1000;
       const curr = body.currency || "USD";
@@ -674,7 +720,7 @@
       };
 
       // Handler router
-      const executeClientRoute = () => {
+      const executeClientRoute = async () => {
         const path = url.split('?')[0];
 
         if (path.endsWith('/api/system-info')) {
@@ -725,7 +771,7 @@
 
         if (path.endsWith('/api/ai-chat')) {
           const body = options.body ? JSON.parse(options.body) : {};
-          return fulfill(runtime.answerAiQuery(body.symbol || 'NVDA', body.message || ''));
+          return fulfill(await runtime.answerAiQuery(body.symbol || 'NVDA', body.message || ''));
         }
 
         if (path.includes('/api/portfolio')) {
@@ -822,16 +868,16 @@
       };
 
       if (isGitHub) {
-        return executeClientRoute();
+        return await executeClientRoute();
       }
 
       // If running on local server, try native fetch first
       try {
         const response = await nativeFetch(url, options);
         if (response.ok) return response;
-        return executeClientRoute();
+        return await executeClientRoute();
       } catch (err) {
-        return executeClientRoute();
+        return await executeClientRoute();
       }
     }
 

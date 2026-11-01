@@ -867,25 +867,25 @@ class MarketDataEngine:
                     recommended_duration=300
                 )
 
-    def _query_gemini(self, prompt: str, context: str, timeout: float = 3.5) -> Optional[str]:
-        """Queries Google Gemini 3.5 Flash via REST API with strict timeout."""
+    def _query_gemini(self, prompt: str, context: str, timeout: float = 6.0) -> Optional[str]:
+        """Queries Google Gemini 3.5 Flash-Lite via REST API with strict timeout."""
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             return None
         
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={api_key}"
         system_instruction = (
-            "You are Quantum Alpha AI, a Wall-Street-grade Senior Quantitative Portfolio Manager and Autonomous Trading Analyst. "
-            "You provide sharp, mathematically sound, realistic market commentary. When the user asks about holding time, recommend "
-            "specific scalping (15s-1m) or intraday swing (5m-30m) durations with the platform's automated timed exit. "
-            "When the user asks about money or profit, calculate exact potential gains and risk numbers. Format with clean markdown headers and bullet points."
+            "You are Quantum Alpha AI, a Wall-Street and Dalal-Street grade Senior Investment Analyst and Autonomous Trading Strategist. "
+            "You provide practical, common-sense financial wisdom, deep market commentary, and realistic risk management. "
+            "When the user asks about long-term investing, Indian shares, or wealth creation, recommend top moat compounders (like HDFC Bank, TCS, Reliance, L&T) with solid rationale. "
+            "When the user asks about short-term trading, specify exact entry, target, and stop-loss boundaries. Format with clean markdown headers and bullet points."
         )
-        full_prompt = f"{system_instruction}\n\n[LIVE TELEMETRY]\n{context}\n\n[USER QUERY]\n{prompt}"
         payload = {
-            "contents": [{"parts": [{"text": full_prompt}]}],
+            "system_instruction": {"parts": [{"text": system_instruction}]},
+            "contents": [{"parts": [{"text": f"[MARKET CONTEXT]\n{context}\n\n[USER QUERY]\n{prompt}"}]}],
             "generationConfig": {
-                "maxOutputTokens": 600,
-                "temperature": 0.6
+                "maxOutputTokens": 1000,
+                "temperature": 0.5
             }
         }
         try:
